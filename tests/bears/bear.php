@@ -1,6 +1,10 @@
 <?php
 // use \Neomerx\JsonApi\Encoder;
 require(__DIR__ . '/../../vendor/autoload.php');
+$baseURL='http://bear.jsonapi.local/';
+$baseURL='http://flexberryJsonAPI.local/';
+
+
 
 class BearSchema extends \Neomerx\JsonApi\Schema\SchemaProvider
 {
@@ -107,18 +111,31 @@ $медведь3= new \Медведь(
     );
 
     
-echo "медведь3=";print_r($медведь3);
+// echo "медведь3=";print_r($медведь3);
 
 $encoder = \Neomerx\JsonApi\Encoder\Encoder::instance([
     'Медведь' => '\BearSchema',
     'ЛесОбитания' => '\ForestSchema',
-], new \Neomerx\JsonApi\Encoder\EncoderOptions(JSON_PRETTY_PRINT, 'http://flexberryJSONAPI.nevod.ru/v1'));
+], new \Neomerx\JsonApi\Encoder\EncoderOptions(JSON_PRETTY_PRINT, $baseURL));
 
 $json=$encoder->encodeData($медведь3);
+// echo "<pre>JSON=$json</pre>\n";
+// echo "<pre>PHP=";print_r($phpData);echo "</pre>\n";
+
+
+$client = new GuzzleHttp\Client(['base_uri' => $baseURL]);
+// echo "CLIENT=";print_r($client);
+
+$res=$client->request('POST','/', [
+    'body'=>$json
+    ]);
+
+echo "StatusCode=" . $res->getStatusCode() . "\n";
+echo "ContentType="; print_r($res->getHeader('content-type'));
+echo "Body=" .$res->getBody() . "\n";
+
 
 $phpData=json_decode($json,true);
 
-echo "<pre>JSON=$json</pre>\n";
-echo "<pre>PHP=";print_r($phpData);echo "</pre>\n";
 
 
