@@ -1,0 +1,34 @@
+{
+    "name": "ics/flexberryJsonAPI",
+    "description": ":package_description",
+    "keywords": [
+        "ics",
+        "flexberryJsonAPI",
+        "json-api"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Kostarev Alexey",
+            "email": "kaf@nevod.ru",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php" : ">=5.5.25"
+    },
+    "require-dev": {
+        "neomerx/json-api": "0.*",
+        "guzzlehttp/guzzle": "^6.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Ics\\:FlexberryJsonAPI\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+          "Neomerx\\JsonApi\\": "src/"
+        }
+    }
+}
