@@ -15,7 +15,7 @@
         }
     ],
     "require": {
-        "php" : ">=5.5.25"
+        "php" : ">=5.5.24"
     },
     "require-dev": {
         "neomerx/json-api": "0.*",
