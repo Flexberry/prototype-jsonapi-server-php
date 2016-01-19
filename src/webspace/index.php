@@ -1,52 +1,25 @@
 <?php
 // use \Neomerx\JsonApi\Encoder;
 require(__DIR__ . '/../../vendor/autoload.php');
+require(__DIR__ . '/../fja/FJA.php');  //Базовый класс Flexberry JSON API
 
-class AuthorSchema extends \Neomerx\JsonApi\Schema\SchemaProvider
-{
-    protected $resourceType = 'people';
-
-    public function getId($author)
-    {
-        /** @var Author $author */
-        return $author->authorId;
-    }
-
-    public function getAttributes($author)
-    {
-        /** @var Author $author */
-        return [
-            'firstName' => $author->firstName,
-            'lastName'  => $author->lastName,
-        ];
-    }
-}
+spl_autoload_register(['\fja\FJA', 'autoload'], true, true);
 
 
-class Author {
-    public $firstName;
-    public $lastName;
-    
-    function __construct($firstName,$lastName) {
-        $this->firstName=$firstName;
-        $this->lastName=$lastName;
-        $this->authorId="$firstName@$lastName";
-    }
-}
+\fja\FJA::autoload('class/Медведь');
+\fja\FJA::autoload('schema/SchemaOfМедведь');
+
+\fja\FJA::autoload('class/ЛесОбитания');
+\fja\FJA::autoload('schema/SchemaOfЛесОбитания');
+
 
 $fp=fopen("php://input",'r');
 
-echo "REQUEST='\n";
+$request='';
+
 while ($str=fgets($fp)) {
-    echo "$str";
+    $request.= $str;
 }
-echo "'";
+$request=trim($request);
+echo "REQUEST='$request'\n";
 
-$author= new \Author('Алексей','Костарев');
-$encoder = \Neomerx\JsonApi\Encoder\Encoder::instance([
-    'Author' => '\AuthorSchema',
-], new \Neomerx\JsonApi\Encoder\EncoderOptions(JSON_PRETTY_PRINT, 'http://flexberryJSONAPI.nevod.ru/v1'));
-
-echo "<pre>" . $encoder->encodeData($author) . "\n</pre>\n";
-
-phpinfo();

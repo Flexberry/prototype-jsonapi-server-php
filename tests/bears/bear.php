@@ -1,66 +1,26 @@
 <?php
-// use \Neomerx\JsonApi\Encoder;
-require(__DIR__ . '/../../vendor/autoload.php');
-$baseURL='http://bear.jsonapi.local/';
-$baseURL='http://flexberryJsonAPI.local/';
+require_once(__DIR__ . '/../../vendor/autoload.php');
+require_once(__DIR__ . '/../../src/fja/FJA.php');
+
+$baseHost='http://flexberryJsonAPI.local/';
+
+// $baseURL='http://prototype-jsonapi-server.ics.perm.ru/';
+$domain='bears';
+$baseURL="$baseHost/$domain";
+
+\fja\FJA::setDomainsDir("../../domains");
+\fja\FJA::setDomain($domain);
+
+\fja\FJA::autoload('class/Медведь');
+\fja\FJA::autoload('schema/SchemaOfМедведь');
+
+\fja\FJA::autoload('class/ЛесОбитания');
+\fja\FJA::autoload('schema/SchemaOfЛесОбитания');
 
 
 
-class BearSchema extends \Neomerx\JsonApi\Schema\SchemaProvider
-{
-    protected $resourceType = 'Медведи';
 
-    public function getId($медведь) {
-        return $медведь->attributes['ПорядковыйНомер'];
-    }
-
-    public function getAttributes($медведь)
-    {
-        return $медведь->attributes;
-    }
-    
-    public function getRelationships($медведь, array $includeRelationships = []) {
-        return $медведь->relationships;
-    }  
-}
-
-class ForestSchema extends \Neomerx\JsonApi\Schema\SchemaProvider
-{
-    protected $resourceType = 'ЛесаОбитания';
-
-    public function getId($ЛесОбитания) {
-        return 0;
-    }
-
-    public function getAttributes($ЛесОбитания)
-    {
-        return $ЛесОбитания->attributes;
-    }
-}
-
-
-class ЛесОбитания {
-    public $attributes;
-    public $relationships;
-    
-    function __construct($attributes=[],$relationships=[]) {
-        $this->attributes=$attributes;
-        $this->relationships=$relationships;
-    }
-}
-
-class Медведь {
-    public $attributes;
-    public $relationships;
-    
-    function __construct($attributes=[],$relationships=[]) {
-        $this->attributes=$attributes;
-        $this->relationships=$relationships;
-        $this->id=$attributes['ПорядковыйНомер'];
-    }
-}
-
-$ЛесОбитания1=new ЛесОбитания(
+$ЛесОбитания1=new \ЛесОбитания(
     [
         'Название'=>'Беловежская Пуща',
         'Площадь'=>222,
@@ -114,8 +74,8 @@ $медведь3= new \Медведь(
 // echo "медведь3=";print_r($медведь3);
 
 $encoder = \Neomerx\JsonApi\Encoder\Encoder::instance([
-    'Медведь' => '\BearSchema',
-    'ЛесОбитания' => '\ForestSchema',
+    'Медведь' => '\SchemaOfМедведь',
+    'ЛесОбитания' => '\SchemaOfЛесОбитания',
 ], new \Neomerx\JsonApi\Encoder\EncoderOptions(JSON_PRETTY_PRINT, $baseURL));
 
 $json=$encoder->encodeData($медведь3);
@@ -123,10 +83,11 @@ $json=$encoder->encodeData($медведь3);
 // echo "<pre>PHP=";print_r($phpData);echo "</pre>\n";
 
 
-$client = new GuzzleHttp\Client(['base_uri' => $baseURL]);
+$uri="$domain/Медведи/3";
+$client = new GuzzleHttp\Client(['base_uri' => $baseHost]);
 // echo "CLIENT=";print_r($client);
 
-$res=$client->request('POST','/', [
+$res=$client->request('POST',$uri, [
     'body'=>$json
     ]);
 
