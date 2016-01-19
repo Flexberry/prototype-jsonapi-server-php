@@ -2,6 +2,9 @@
 class SchemaOfМедведь extends \Neomerx\JsonApi\Schema\SchemaProvider
 {
     protected $resourceType = 'Медведи';
+    protected $selfSubUrl  = '/Медведи/';
+    protected $isShowSelfInIncluded = true;
+
 
     public function getId($медведь) {
         return $медведь->attributes['ПорядковыйНомер'];
@@ -13,6 +16,12 @@ class SchemaOfМедведь extends \Neomerx\JsonApi\Schema\SchemaProvider
     }
     
     public function getRelationships($медведь, array $includeRelationships = []) {
+        $relationships=$медведь->relationships;
         return $медведь->relationships;
     }  
+    
+    public function getIncludePaths() {
+        return ['ЛесОбитания','Папа','Мама'];
+    }
+    
 }

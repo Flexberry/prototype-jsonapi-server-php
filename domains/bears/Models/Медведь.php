@@ -1,6 +1,7 @@
 <?php
 
 class Медведь extends stdClass {
+
     public $attributes;
     public $relationships;
     
