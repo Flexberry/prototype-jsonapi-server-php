@@ -21,5 +21,6 @@ while ($str=fgets($fp)) {
     $request.= $str;
 }
 $request=trim($request);
-echo "REQUEST='$request'\n";
+echo print_r(json_decode($request,true));
+// echo "REQUEST='$request'\n";
 

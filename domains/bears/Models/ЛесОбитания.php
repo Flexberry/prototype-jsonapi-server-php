@@ -7,4 +7,9 @@ class ЛесОбитания extends stdClass {
         $this->attributes=$attributes;
         $this->relationships=$relationships;
     }
+    
+    public static function instance($attributes=[],$relationships=[]) {
+        return new self($attributes,$relationships);
+     }
+    
 }
