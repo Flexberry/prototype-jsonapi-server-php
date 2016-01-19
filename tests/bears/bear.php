@@ -11,11 +11,11 @@ $baseURL="$baseHost/$domain";
 \fja\FJA::setDomainsDir("../../domains");
 \fja\FJA::setDomain($domain);
 
-\fja\FJA::autoload('class/Медведь');
-\fja\FJA::autoload('schema/SchemaOfМедведь');
+\fja\FJA::autoload('Models/Медведь');
+\fja\FJA::autoload('Schemas/SchemaOfМедведь');
 
-\fja\FJA::autoload('class/ЛесОбитания');
-\fja\FJA::autoload('schema/SchemaOfЛесОбитания');
+\fja\FJA::autoload('Models/ЛесОбитания');
+\fja\FJA::autoload('Schemas/SchemaOfЛесОбитания');
 
 
 

@@ -6,11 +6,11 @@ require(__DIR__ . '/../fja/FJA.php');  //Базовый класс Flexberry JSO
 spl_autoload_register(['\fja\FJA', 'autoload'], true, true);
 
 
-\fja\FJA::autoload('class/Медведь');
-\fja\FJA::autoload('schema/SchemaOfМедведь');
+\fja\FJA::autoload('Models/Медведь');
+\fja\FJA::autoload('Schemas/SchemaOfМедведь');
 
-\fja\FJA::autoload('class/ЛесОбитания');
-\fja\FJA::autoload('schema/SchemaOfЛесОбитания');
+\fja\FJA::autoload('Models/ЛесОбитания');
+\fja\FJA::autoload('Schemas/SchemaOfЛесОбитания');
 
 
 $fp=fopen("php://input",'r');
