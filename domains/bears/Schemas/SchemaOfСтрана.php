@@ -15,6 +15,5 @@ class SchemaOfСтрана extends \Neomerx\JsonApi\Schema\SchemaProvider
         return $страна->attributes;
     }
     
-
         
 }

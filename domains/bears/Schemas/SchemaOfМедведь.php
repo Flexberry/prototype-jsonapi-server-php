@@ -21,7 +21,7 @@ class SchemaOfМедведь extends \Neomerx\JsonApi\Schema\SchemaProvider
     }  
     
     public function getIncludePaths() {
-        return ['ЛесОбитания','Папа','Мама'];
+        return ['Папа','Мама'];
     }
     
 }

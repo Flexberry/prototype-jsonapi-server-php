@@ -1,5 +1,5 @@
 <?php
-class ЛесОбитания extends stdClass {
+class Берлога extends stdClass {
     public $attributes;
     public $relationships;
     

@@ -10,7 +10,7 @@ switch ($_SERVER["REQUEST_METHOD"]) {
     case 'POST':    //Создание объектов
         echo "Create object $request_uri<br>\n";
         $postData=getPostData();
-        echo "postData=";print_r($postData);
+//         echo "postData=";print_r($postData);
         $listObjects=decodePostData($postData);
         echo "listObjects=".print_r($listObjects,true);
         break;;
