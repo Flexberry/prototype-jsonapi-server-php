@@ -6,7 +6,7 @@ class SchemaOfЛес extends \Neomerx\JsonApi\Schema\SchemaProvider
     protected $isShowSelfInIncluded = true;
 
     public function getId($лес) {
-        return 0;
+        return $лес->attributes['primarykey'];
     }
 
     public function getAttributes($лес)

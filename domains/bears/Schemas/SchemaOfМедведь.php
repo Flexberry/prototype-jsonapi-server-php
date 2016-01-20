@@ -7,9 +7,9 @@ class SchemaOfМедведь extends \Neomerx\JsonApi\Schema\SchemaProvider
 
 
     public function getId($медведь) {
-        return $медведь->attributes['ПорядковыйНомер'];
+        return $медведь->attributes['primarykey'];
     }
-
+    
     public function getAttributes($медведь)
     {
         return $медведь->attributes;

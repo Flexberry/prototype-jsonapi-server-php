@@ -8,7 +8,6 @@ class Страна extends stdClass {
     public function __construct($attributes=[],$relationships=[]) {
         $this->attributes=$attributes;
         $this->relationships=$relationships;
-        $this->id=$attributes['Название'];
     }
     
      public static function instance($attributes=[],$relationships=[]) {

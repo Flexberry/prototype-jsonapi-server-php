@@ -1,6 +1,7 @@
 <?php
 require_once(__DIR__ . '/../../vendor/autoload.php');
 require_once(__DIR__ . '/../../src/fja/FJA.php');
+require_once(__DIR__ . '/../../src/fja/UUID.php');
 
 $baseHost='http://flexberryJsonAPI.local/';
 
@@ -32,13 +33,16 @@ $encoder = \Neomerx\JsonApi\Encoder\Encoder::instance([
 
 $страна1= \Страна::instance(
     [
+        'primarykey'=>uuid_gen(),
         'Название'=>'Белоруссия',
     ]
     );
 
+// echo "Страна1=".print_r($страна1,true); 
 
 $лес1= \Лес::instance(
     [
+        'primarykey'=>uuid_gen(),
         'Название'=>'Беловежская Пуща',
         'Площадь'=>222,
         'Заповедник'=>false,
@@ -49,15 +53,11 @@ $лес1= \Лес::instance(
     ]
     );
     
-sendPOSTRequest($restClient,$encoder,"Лес и страна","$domain/Лес/0",$лес1);
+// echo "Лес1=".print_r($лес1,true); 
+    
+sendPOSTRequest($restClient,$encoder,"Лес и страна","$domain/Леса",$лес1);
 
-// $res=$restClient->request('POST',"$domain/Леса/0", ['body'=>$encoder->encodeData($лес1)]);
-// 
-// echo "\n\n----------------------------------- Лес1::";
-// echo "StatusCode=" . $res->getStatusCode() . "\n";
-// echo "ContentType="; print_r($res->getHeader('content-type'));
-// echo "Body=" .$res->getBody() . "\n";
-//     
+
     
 
 
@@ -66,6 +66,7 @@ sendPOSTRequest($restClient,$encoder,"Лес и страна","$domain/Лес/0"
     
 $медведь1=  \Медведь::instance(
     [ 
+        'primarykey'=>uuid_gen(),
         'ПорядковыйНомер'=>1,
         'Вес'=>101,
         'ЦветГлаз'=>'Зеленый',
@@ -79,6 +80,7 @@ $медведь1=  \Медведь::instance(
 
 $медведь2=  \Медведь::instance(
     [ 
+        'primarykey'=>uuid_gen(),
         'ПорядковыйНомер'=>2,
         'Вес'=>96,
         'ЦветГлаз'=>'Карий',
@@ -92,6 +94,7 @@ $медведь2=  \Медведь::instance(
 
 $медведь3=  \Медведь::instance(
     [ 
+        'primarykey'=>uuid_gen(),
         'ПорядковыйНомер'=>3,
         'Вес'=>65,
         'ЦветГлаз'=>'Синий',
@@ -111,23 +114,25 @@ sendPOSTRequest($restClient,$encoder,"Медведи","$domain/Медведи/3"
 \fja\FJA::autoload('Models/Блоха');
 \fja\FJA::autoload('Schemas/SchemaOfБлоха');
 
-$блоха1=\Блоха::instance(['Кличка'=>'Машка'],['МедведьОбитания' => ['data' => $медведь1]]);
+$блоха1=\Блоха::instance(['primarykey'=>uuid_gen(),'Кличка'=>'Машка'],['МедведьОбитания' => ['data' => $медведь1]]);
 sendPOSTRequest($restClient,$encoder,"Блоха1","$domain/Блоха/1",$блоха1);
 
-$блоха2=\Блоха::instance(['Кличка'=>'Сашка'],['МедведьОбитания' => ['data' => $медведь1]]);
+$блоха2=\Блоха::instance(['primarykey'=>uuid_gen(),'Кличка'=>'Сашка'],['МедведьОбитания' => ['data' => $медведь1]]);
 sendPOSTRequest($restClient,$encoder,"Блоха2","$domain/Блоха/1",$блоха2);
 
-$блоха3=\Блоха::instance(['Кличка'=>'Дашка'],['МедведьОбитания' => ['data' => $медведь2]]);
+$блоха3=\Блоха::instance(['primarykey'=>uuid_gen(),'Кличка'=>'Дашка'],['МедведьОбитания' => ['data' => $медведь2]]);
 sendPOSTRequest($restClient,$encoder,"Блоха3","$domain/Блоха/1",$блоха3);
 
-$блоха4=\Блоха::instance(['Кличка'=>'Пашка'],['МедведьОбитания' => ['data' => $медведь3]]);
+$блоха4=\Блоха::instance(['primarykey'=>uuid_gen(),'Кличка'=>'Пашка'],['МедведьОбитания' => ['data' => $медведь3]]);
 sendPOSTRequest($restClient,$encoder,"Блоха4","$domain/Блоха/1",$блоха4);
 
 \fja\FJA::autoload('Models/Берлога');
 \fja\FJA::autoload('Schemas/SchemaOfБерлога');
 
-$берлога1=\Берлога::instance(
+$берлоги=[];
+$берлоги[]=\Берлога::instance(
     [ 
+        'primarykey'=>uuid_gen(),
         'Наименование'=>'ТаунХаус',
         'Комфортность'=>99,
         'Заброшена'=>false,
@@ -137,10 +142,10 @@ $берлога1=\Берлога::instance(
         'Медведь' => ['data' =>  $медведь1 ],
     ]
     );
-sendPOSTRequest($restClient,$encoder,"Берлога1","$domain/Берлога/1",$берлога1);
 
-$берлога2=\Берлога::instance(
+$берлоги[]=\Берлога::instance(
     [ 
+        'primarykey'=>uuid_gen(),
         'Наименование'=>'У сосны',
         'Комфортность'=>60,
         'Заброшена'=>false,
@@ -150,11 +155,11 @@ $берлога2=\Берлога::instance(
         'Медведь' => ['data' =>  $медведь1 ],
     ]
     );
-sendPOSTRequest($restClient,$encoder,"Берлога2","$domain/Берлога/2",$берлога2);
 
     
-$берлога3=\Берлога::instance(
+$берлоги[]=\Берлога::instance(
     [ 
+        'primarykey'=>uuid_gen(),
         'Наименование'=>'У дуба',
         'Комфортность'=>60,
         'Заброшена'=>false,
@@ -164,10 +169,10 @@ $берлога3=\Берлога::instance(
         'Медведь' => ['data' =>  $медведь2 ],
     ]
     );
-sendPOSTRequest($restClient,$encoder,"Берлога3","$domain/Берлога/3",$берлога3);
     
-$берлога4=\Берлога::instance(
+$берлоги[]=\Берлога::instance(
     [ 
+        'primarykey'=>uuid_gen(),
         'Наименование'=>'Детская',
         'Комфортность'=>80,
         'Заброшена'=>false,
@@ -178,8 +183,13 @@ $берлога4=\Берлога::instance(
     ]
     );
     
-sendPOSTRequest($restClient,$encoder,"Берлога4","$domain/Берлога/1",$берлога4);
+sendPOSTRequest($restClient,$encoder,"Берлоги","$domain/Берлоги",$берлоги);
 
+
+function uuid_gen() {
+    $ret=UUID::v4();
+    return $ret;
+}
 
 
 function sendPOSTRequest($restClient,$encoder,$title,$uri,$instance) {

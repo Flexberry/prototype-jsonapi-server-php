@@ -6,7 +6,7 @@ class SchemaOfБлоха extends \Neomerx\JsonApi\Schema\SchemaProvider
     protected $isShowSelfInIncluded = true;
 
     public function getId($блоха) {
-        return 0;
+        return $блоха->attributes['primarykey'];
     }
 
     public function getAttributes($блоха)

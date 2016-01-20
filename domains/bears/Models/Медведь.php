@@ -8,7 +8,6 @@ class Медведь extends stdClass {
     public function __construct($attributes=[],$relationships=[]) {
         $this->attributes=$attributes;
         $this->relationships=$relationships;
-        $this->id=$attributes['ПорядковыйНомер'];
     }
     
      public static function instance($attributes=[],$relationships=[]) {

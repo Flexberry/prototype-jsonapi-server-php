@@ -7,7 +7,7 @@ class SchemaOfСтрана extends \Neomerx\JsonApi\Schema\SchemaProvider
 
 
     public function getId($страна) {
-        return $страна->attributes['Название'];
+        return $страна->attributes['primarykey'];
     }
 
     public function getAttributes($страна)

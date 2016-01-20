@@ -46,14 +46,28 @@ function getPostData() {
     return $ret;
 }
 
+
+function isAssoc($arr) {
+    return array_keys($arr) !== range(0, count($arr) - 1);
+}
+
 function decodePostData($postData) {
     if (!key_exists('data',$postData)) {
         echo "Отсутствует аттрибут data в " . print_r($posrData,true) ;
         return [];
     }
     $ret=[];
+    $datas=[];
     $data=$postData['data'];
-    $ret[]=decodeData($data);
+    if (isAssoc($data)) {
+        $datas[]=$data;
+    } else {
+        $datas=$data;
+    }
+//     echo "datas=";print_r($datas);
+    foreach ($datas as $data) {
+        $ret[]=decodeData($data);    
+    }
    if (key_exists('included',$postData)) { //Есть включенный объекты
         foreach ($postData['included'] as $subData) {
 //             $ret=array_merge($ret,decodeData($subData));

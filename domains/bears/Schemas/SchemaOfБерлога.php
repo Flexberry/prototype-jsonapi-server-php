@@ -6,7 +6,7 @@ class SchemaOfБерлога extends \Neomerx\JsonApi\Schema\SchemaProvider
     protected $isShowSelfInIncluded = true;
 
     public function getId($берлога) {
-        return 0;
+        return $берлога->attributes['primarykey'];
     }
 
     public function getAttributes($берлога)
