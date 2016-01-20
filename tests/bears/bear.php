@@ -17,15 +17,26 @@ $baseURL="$baseHost/$domain";
 \fja\FJA::autoload('Models/ЛесОбитания');
 \fja\FJA::autoload('Schemas/SchemaOfЛесОбитания');
 
+\fja\FJA::autoload('Models/Страна');
+\fja\FJA::autoload('Schemas/SchemaOfСтрана');
 
 
+$страна1= \Страна::instance(
+    [
+        'Название'=>'Белоруссия',
+    ]
+    );
 
-$ЛесОбитания1= \ЛесОбитания::instance(
+
+$лесОбитания1= \ЛесОбитания::instance(
     [
         'Название'=>'Беловежская Пуща',
         'Площадь'=>222,
         'Заповедник'=>false,
         'ДатаПоследнегоОсмотра'=>'2010/05/05'
+    ],
+    [
+        'Страна' => ['data' => $страна1],
     ]
     );
 
@@ -38,7 +49,7 @@ $медведь1=  \Медведь::instance(
         'ДатаРождения'=>'2010/06/08'
     ],
     [
-        'ЛесОбитания' => ['data' => $ЛесОбитания1],
+        'ЛесОбитания' => ['data' => $лесОбитания1],
     ]
     );
 
@@ -51,7 +62,7 @@ $медведь2=  \Медведь::instance(
         'ДатаРождения'=>'2010/09/15'
     ],
     [
-        'ЛесОбитания' => ['data' => $ЛесОбитания1],
+        'ЛесОбитания' => ['data' => $лесОбитания1],
     ]
     );
 
@@ -64,23 +75,32 @@ $медведь3=  \Медведь::instance(
         'ДатаРождения'=>'2012/12/15'
     ],
     [
-        'ЛесОбитания' => ['data' => $ЛесОбитания1],
+        'ЛесОбитания' => ['data' => $лесОбитания1],
         'Папа' => ['data' =>  $медведь1 ],
         'Мама' => ['data' =>  $медведь2 ],
     ]
     );
 
-    
-// echo "медведь3=";print_r($медведь3);
+
+// echo "медведь1=" . print_r($медведь1,true) . "\n";
+// $bear3Json=json_encode($медведь3);
+// echo "$bear3Json=" . $bear3Json . "\n";
+// echo "bear3="; print_r(json_decode($bear3Json));
 
 $encoder = \Neomerx\JsonApi\Encoder\Encoder::instance([
     'Медведь' => '\SchemaOfМедведь',
     'ЛесОбитания' => '\SchemaOfЛесОбитания',
+    'Страна' => '\SchemaOfСтрана',
 ], new \Neomerx\JsonApi\Encoder\EncoderOptions(JSON_PRETTY_PRINT, $baseURL));
 
-$json=$encoder->encodeData($медведь3);
+$json=$encoder->encodeData($лесОбитания1);
 // echo "<pre>JSON=$json</pre>\n";
-// echo "<pre>PHP=";print_r($phpData);echo "</pre>\n";
+// echo "<pre>PHP=медведь1";print_r(json_decode($json));echo "</pre>\n";
+
+// echo "ЛесОбитания1=" . print_r($лесОбитания1,true) . "\n";
+// $json=$encoder->encodeData($лесОбитания1);
+// // echo "<pre>JSON=$json</pre>\n";
+// echo "<pre>PHP=ЛесОбитания1";print_r(json_decode($json));echo "</pre>\n";
 
 
 $uri="$domain/Медведи/3";

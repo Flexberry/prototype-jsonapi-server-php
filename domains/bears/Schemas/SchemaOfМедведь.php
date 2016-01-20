@@ -1,7 +1,7 @@
 <?php
 class SchemaOfМедведь extends \Neomerx\JsonApi\Schema\SchemaProvider
 {
-    protected $resourceType = 'Медведи';
+    protected $resourceType = 'Медведь';
     protected $selfSubUrl  = '/Медведи/';
     protected $isShowSelfInIncluded = true;
 
