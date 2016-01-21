@@ -11,13 +11,16 @@ class Лес extends stdClass {
 
         ];
     
-    function __construct($attributes=[],$relationships=[]) {
+    public function __construct($id=null,$attributes=[],$relationships=[]) {
+        if ($id) {
+            $attributes[$this->primaryKeyName]=$id;
+        }
         $this->attributes=$attributes;
         $this->relationships=$relationships;
     }
     
-    public static function instance($attributes=[],$relationships=[]) {
-        return new self($attributes,$relationships);
+     public static function instance($id=null,$attributes=[],$relationships=[]) {
+        return new self($id,$attributes,$relationships);
      }
     
     public function isBoolean($attrName) {

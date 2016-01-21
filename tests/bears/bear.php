@@ -33,8 +33,9 @@ $encoder = \Neomerx\JsonApi\Encoder\Encoder::instance([
 
 
 $страна1= \Страна::instance(
+//     null,
+    '5a2a7f79-ea7a-41c8-89ad-88e892bc47fe',
     [
-        'primarykey'=>'5a2a7f79-ea7a-41c8-89ad-88e892bc47fe',
         'Название'=>'Белоруссия',
     ]
     );
@@ -42,9 +43,11 @@ $страна1= \Страна::instance(
 // $reply=sendPOSTRequest($restClient,$encoder,"Страна","Страны",$страна1);
 // $primaryKey=json_decode($reply,true)['data']['attributes']['primarykey'];
 // $страна1->attributes['primarykey']=$primaryKey;
-echo "Страна=".print_r($страна1,true); 
+echo "BEAR::Страна=".print_r($страна1,true); 
 
 $лес1= \Лес::instance(
+//     null,
+    '338c0640-1e26-4340-8a72-506957c6bb20',
     [
         'Название'=>'Беловежская Пуща',
         'Площадь'=>222,
@@ -56,11 +59,9 @@ $лес1= \Лес::instance(
     ]
     );
     
-echo "Лес1=".print_r($лес1,true); 
+echo "BEAR::Лес1=".print_r($лес1,true); 
     
 $reply=sendPOSTRequest($restClient,$encoder,"Лес и страна","Леса",$лес1);
-exit;
-
     
 
 
@@ -68,8 +69,8 @@ exit;
 \fja\FJA::autoload('Schemas/SchemaOfМедведь');
     
 $медведь1=  \Медведь::instance(
+    uuid_gen(),
     [ 
-        'primarykey'=>uuid_gen(),
         'ПорядковыйНомер'=>1,
         'Вес'=>101,
         'ЦветГлаз'=>'Зеленый',
@@ -80,10 +81,11 @@ $медведь1=  \Медведь::instance(
         'ЛесОбитания' => ['data' => $лес1],
     ]
     );
+$reply=sendPOSTRequest($restClient,$encoder,"Медведь1","Медведи",$медведь1);
 
 $медведь2=  \Медведь::instance(
+    uuid_gen(),
     [ 
-        'primarykey'=>uuid_gen(),
         'ПорядковыйНомер'=>2,
         'Вес'=>96,
         'ЦветГлаз'=>'Карий',
@@ -94,10 +96,11 @@ $медведь2=  \Медведь::instance(
         'ЛесОбитания' => ['data' => $лес1],
     ]
     );
+$reply=sendPOSTRequest($restClient,$encoder,"Медведь2","Медведи",$медведь2);
 
 $медведь3=  \Медведь::instance(
+    uuid_gen(),
     [ 
-        'primarykey'=>uuid_gen(),
         'ПорядковыйНомер'=>3,
         'Вес'=>65,
         'ЦветГлаз'=>'Синий',
@@ -110,30 +113,29 @@ $медведь3=  \Медведь::instance(
         'Мама' => ['data' =>  $медведь2 ],
     ]
     );
-sendPOSTRequest($restClient,$encoder,"Медведи","Медведи/3",$медведь3);
-
+$reply=sendPOSTRequest($restClient,$encoder,"Медведь3","Медведи",$медведь3);
 
 
 \fja\FJA::autoload('Models/Блоха');
 \fja\FJA::autoload('Schemas/SchemaOfБлоха');
 
-$блоха1=\Блоха::instance(['primarykey'=>uuid_gen(),'Кличка'=>'Машка'],['МедведьОбитания' => ['data' => $медведь1]]);
+$reply=$блоха1=\Блоха::instance(uuid_gen(),['Кличка'=>'Машка'],['МедведьОбитания' => ['data' => $медведь1]]);
 sendPOSTRequest($restClient,$encoder,"Блоха1","Блоха/1",$блоха1);
 
-$блоха2=\Блоха::instance(['primarykey'=>uuid_gen(),'Кличка'=>'Сашка'],['МедведьОбитания' => ['data' => $медведь1]]);
-sendPOSTRequest($restClient,$encoder,"Блоха2","Блоха/1",$блоха2);
+$блоха2=\Блоха::instance(uuid_gen(),['Кличка'=>'Сашка'],['МедведьОбитания' => ['data' => $медведь1]]);
+$reply=sendPOSTRequest($restClient,$encoder,"Блоха2","Блоха/1",$блоха2);
 
-$блоха3=\Блоха::instance(['primarykey'=>uuid_gen(),'Кличка'=>'Дашка'],['МедведьОбитания' => ['data' => $медведь2]]);
-sendPOSTRequest($restClient,$encoder,"Блоха3","Блоха/1",$блоха3);
+$блоха3=\Блоха::instance(uuid_gen(),['Кличка'=>'Дашка'],['МедведьОбитания' => ['data' => $медведь2]]);
+$reply=sendPOSTRequest($restClient,$encoder,"Блоха3","Блоха/1",$блоха3);
 
-$блоха4=\Блоха::instance(['primarykey'=>uuid_gen(),'Кличка'=>'Пашка'],['МедведьОбитания' => ['data' => $медведь3]]);
-sendPOSTRequest($restClient,$encoder,"Блоха4","Блоха/1",$блоха4);
+$блоха4=\Блоха::instance(uuid_gen(),['Кличка'=>'Пашка'],['МедведьОбитания' => ['data' => $медведь3]]);
+$reply=sendPOSTRequest($restClient,$encoder,"Блоха4","Блоха/1",$блоха4);
 
 \fja\FJA::autoload('Models/Берлога');
 \fja\FJA::autoload('Schemas/SchemaOfБерлога');
 
-$берлоги=[];
-$берлоги[]=\Берлога::instance(
+$берлога1=\Берлога::instance(
+    uuid_gen(),
     [ 
         'primarykey'=>uuid_gen(),
         'Наименование'=>'ТаунХаус',
@@ -145,8 +147,10 @@ $берлоги[]=\Берлога::instance(
         'Медведь' => ['data' =>  $медведь1 ],
     ]
     );
+    $reply=sendPOSTRequest($restClient,$encoder,"Берлога1","Берлоги",$берлога1);
 
-$берлоги[]=\Берлога::instance(
+$берлога2=\Берлога::instance(
+    uuid_gen(),
     [ 
         'primarykey'=>uuid_gen(),
         'Наименование'=>'У сосны',
@@ -158,9 +162,11 @@ $берлоги[]=\Берлога::instance(
         'Медведь' => ['data' =>  $медведь1 ],
     ]
     );
+    $reply=sendPOSTRequest($restClient,$encoder,"Берлога2","Берлоги",$берлога2);
 
     
-$берлоги[]=\Берлога::instance(
+$берлога3=\Берлога::instance(
+    uuid_gen(),
     [ 
         'primarykey'=>uuid_gen(),
         'Наименование'=>'У дуба',
@@ -172,8 +178,10 @@ $берлоги[]=\Берлога::instance(
         'Медведь' => ['data' =>  $медведь2 ],
     ]
     );
+    $reply=sendPOSTRequest($restClient,$encoder,"Берлога3","Берлоги",$берлога3);
     
-$берлоги[]=\Берлога::instance(
+$берлога4=\Берлога::instance(
+    uuid_gen(),
     [ 
         'primarykey'=>uuid_gen(),
         'Наименование'=>'Детская',
@@ -186,7 +194,7 @@ $берлоги[]=\Берлога::instance(
     ]
     );
     
-    sendPOSTRequest($restClient,$encoder,"Берлоги","Берлоги",$берлоги);
+    $reply=sendPOSTRequest($restClient,$encoder,"Берлога4","Берлоги",$берлога4);
 
 
 function uuid_gen() {
@@ -197,7 +205,7 @@ function uuid_gen() {
 
 function sendPOSTRequest($restClient,$encoder,$title,$uri,$instance) {
     $body=$encoder->encodeData($instance);
-    echo "Sent:" .  print_r(json_decode($body,true),true);
+    echo "BEAR::Sent:" .  print_r(json_decode($body,true),true);
     try {
         $reply=$restClient->request('POST',$uri, ['body'=>$body]);
     } catch (ClientException $e) {
@@ -210,9 +218,10 @@ function sendPOSTRequest($restClient,$encoder,$title,$uri,$instance) {
         exit;
     }
     echo "\n\n---------------- $title -------------\n";
-    echo "StatusCode=" . $reply->getStatusCode() . "\n";
-    echo "Headers="; print_r($reply->getHeaders());
+    echo "BEAR::StatusCode=" . $reply->getStatusCode() . "\n";
+    echo "BEAR::Headers="; print_r($reply->getHeaders());
     $body=$reply->getBody();
-    echo "Body=$body\n";
+    echo "BEAR::Body=$body\n";
+    echo "BEAR::BODY=".print_r(json_decode($body,true),true);
     return $body;
 }

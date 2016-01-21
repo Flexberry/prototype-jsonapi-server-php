@@ -12,7 +12,7 @@ switch ($_SERVER["REQUEST_METHOD"]) {
         $postData=getPostData();
 //         echo "postData=";print_r($postData);
         $listObjects=decodePostData($postData);
-        echo "listObjects=".print_r($listObjects,true);
+//         echo "listObjects=".print_r($listObjects,true);
         $nObjects=count($listObjects);
         if ($nObjects==0) {
             sendErrorReply(['status'=>'403','title'=>'No object in request']);
@@ -21,14 +21,15 @@ switch ($_SERVER["REQUEST_METHOD"]) {
         }
         $object=$listObjects[0];
         addObjectToDb($object); 
-        echo "object=".print_r($object,true);
-        
+//         echo "object=".print_r($object,true);        
         $schemas=formSchemas([$object]);
-        echo "schemas=".print_r($schemas,true);
+//         echo "schemas=".print_r($schemas,true);
         $encoder = \Neomerx\JsonApi\Encoder\Encoder::instance($schemas, new \Neomerx\JsonApi\Encoder\EncoderOptions(JSON_PRETTY_PRINT, $baseURL));
-        echo "encoder=".print_r($encoder,true);
+//         echo "encoder=".print_r($encoder,true);
+        $object=replaceRelationshipsObject($object);        
+//         echo "object=".print_r($object,true);
         $json=$encoder->encodeData($object);
-        echo "json=".print_r($json,true);exit;
+//         echo "json=".print_r($json,true);
         $objectTree=json_decode($json,true);
         $location=$objectTree['data']['links']['self'];
         sendCreatedObject($location,$json);
@@ -48,11 +49,11 @@ switch ($_SERVER["REQUEST_METHOD"]) {
         break;;
 }
 
-\fja\FJA::autoload('Models/Медведь');
-\fja\FJA::autoload('Schemas/SchemaOfМедведь');
-
-\fja\FJA::autoload('Models/ЛесОбитания');
-\fja\FJA::autoload('Schemas/SchemaOfЛесОбитания');
+// \fja\FJA::autoload('Models/Медведь');
+// \fja\FJA::autoload('Schemas/SchemaOfМедведь');
+// 
+// \fja\FJA::autoload('Models/ЛесОбитания');
+// \fja\FJA::autoload('Schemas/SchemaOfЛесОбитания');
 
 
 function getPostData() {
@@ -101,10 +102,39 @@ function formSchemas($objects) {
     foreach ($objects as $object) {
         $type=get_class($object);
         $ret[$type]="SchemaOf$type";
+        if (isset($object->relationships) && is_Array($object->relationships)) {
+            foreach ($object->relationships as $relationships) {
+                if (key_exists('data',$relationships) && key_exists('type',$relationships['data'])) {
+                    $subType=$relationships['data']['type'];
+                    $ret[$subType]="SchemaOf$subType";
+                }
+            }
+        }
     }
     return $ret;
 }
 
+
+/*
+ * Replace ['type']=>type,['id']->id on object in relationships
+ */
+function replaceRelationshipsObject($object) {
+    if (isset($object->relationships) && is_Array($object->relationships)) {
+        foreach ($object->relationships as $relName=>$relationships) {
+            if (key_exists('data',$relationships) && key_exists('id',$relationships['data'])) {
+                $subType=$relationships['data']['type'];
+                $subId=$relationships['data']['id'];
+//                 echo "subType=$subType subId=$subId\n";
+                $modelClass="Models/$subType";
+                \fja\FJA::autoload($modelClass);
+                $schemaClass="Schemas/SchemaOf$subType";
+                \fja\FJA::autoload($schemaClass);
+                $object->relationships[$relName]['data']=new $subType($subId);
+            }
+        }
+    }
+    return $object;
+}
 
 function decodeData($data) {
     if (!key_exists('type',$data)) {
@@ -130,7 +160,7 @@ function decodeData($data) {
 //     echo "schemaClass=$schemaClass\n";
     $className="\\$type";
 //     echo "className=$className\n";
-    $object=new $className($attributes,$relationships);
+    $object=new $className(null,$attributes,$relationships);
 //     echo "Object=".print_r($object,true);
     return $object; 
 }
@@ -179,7 +209,7 @@ function connectDb() {
 }
 
 function addObjectToDb($object) {
-    echo "object=".print_r($object,true);
+//     echo "object=".print_r($object,true);
     $primaryKeyName=$object->primaryKeyName;
 //     echo "primaryKeyName=$primaryKeyName\n";
     if (!key_exists($primaryKeyName,$object->attributes) || !trim($object->attributes[$primaryKeyName])) {
@@ -188,6 +218,7 @@ function addObjectToDb($object) {
     } else {
         $primaryKey=$object->attributes[$primaryKeyName];
     }
+    return $object;    
 //     echo "primaryKey=$primaryKey\n";
     $className=get_class($object);
     $insertCmd="INSERT INTO public." . $className . ' ';; 

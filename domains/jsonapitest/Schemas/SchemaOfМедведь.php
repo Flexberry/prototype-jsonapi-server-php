@@ -20,8 +20,8 @@ class SchemaOfМедведь extends \Neomerx\JsonApi\Schema\SchemaProvider
         return $медведь->relationships;
     }  
     
-    public function getIncludePaths() {
-        return ['Папа','Мама'];
-    }
+//     public function getIncludePaths() {
+//         return ['Папа','Мама'];
+//     }
     
 }
