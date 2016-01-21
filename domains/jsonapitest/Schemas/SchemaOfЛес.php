@@ -3,10 +3,11 @@ class SchemaOfЛес extends \Neomerx\JsonApi\Schema\SchemaProvider
 {
     protected $resourceType = 'Лес';
     protected $selfSubUrl  = '/Леса/';
-    protected $isShowSelfInIncluded = true;
+    protected $isShowSelfInIncluded = false;
 
     public function getId($лес) {
-        return $лес->attributes['primarykey'];
+        $ret=(key_exists('primarykey',$лес->attributes)?$лес->attributes['primarykey']:null);
+        return $ret;
     }
 
     public function getAttributes($лес)
@@ -20,7 +21,8 @@ class SchemaOfЛес extends \Neomerx\JsonApi\Schema\SchemaProvider
     }  
 
     public function getIncludePaths() {
-        return ['Страна'];
+        return [];
+//        return ['Страна'];
     }
     
 }

@@ -7,6 +7,9 @@ class FJA {
 
     public static $domainsDir;
     public static $domain;
+    private static $domainToDBName= [
+        'jsonapitest'=>'JsonApiTest'
+        ];
     
     public static function setDomainsDir($domainsDir) {
         self::$domainsDir=$domainsDir;
@@ -20,10 +23,10 @@ class FJA {
 
     public static function autoload($className)
     {
-        if (@is_array($_SERVER) && key_exists('DOCUMENT_ROOT',$_SERVER) && key_exists('REQUEST_URI',$_SERVER)) {  //Called in WEB-environment
+        if (@is_array($_SERVER) && key_exists('DOCUMENT_ROOT',$_SERVER) && key_exists('HTTP_HOST',$_SERVER)) {  //Called in WEB-environment
             self::setDomainsDir($_SERVER["DOCUMENT_ROOT"]. "/../../domains");
-            $path=explode('/',trim($_SERVER["REQUEST_URI"],'/'));
-//             echo "PATH=";print_r($path);
+            $path=explode('.',trim($_SERVER["HTTP_HOST"],'/'));
+//             echo "PATH=";print_r($path);exit;
             $domain=$path[0];
             self::setDomain($domain);
         }
@@ -37,5 +40,10 @@ class FJA {
             include_once($classFile);
         }
     }
+    
+    public static function getDBName() {
+        $ret=(key_exists(self::$domain,self::$domainToDBName)?self::$domainToDBName[self::$domain]:self::$domain);
+        return $ret;
+    }    
 
 }

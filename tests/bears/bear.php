@@ -1,13 +1,14 @@
 <?php
+use GuzzleHttp\Exception\ClientException;
 require_once(__DIR__ . '/../../vendor/autoload.php');
 require_once(__DIR__ . '/../../src/fja/FJA.php');
 require_once(__DIR__ . '/../../src/fja/UUID.php');
 
-$baseHost='http://flexberryJsonAPI.local/';
+$baseHost='http://jsonapitest.local';
 
 // $baseURL='http://prototype-jsonapi-server.ics.perm.ru/';
-$domain='bears';
-$baseURL="$baseHost/$domain";
+$domain='jsonapitest';
+$baseURL="$baseHost";
 
 $restClient = new GuzzleHttp\Client(['base_uri' => $baseHost]);
 
@@ -33,30 +34,32 @@ $encoder = \Neomerx\JsonApi\Encoder\Encoder::instance([
 
 $страна1= \Страна::instance(
     [
-        'primarykey'=>uuid_gen(),
+        'primarykey'=>'5a2a7f79-ea7a-41c8-89ad-88e892bc47fe',
         'Название'=>'Белоруссия',
     ]
     );
 
-// echo "Страна1=".print_r($страна1,true); 
+// $reply=sendPOSTRequest($restClient,$encoder,"Страна","Страны",$страна1);
+// $primaryKey=json_decode($reply,true)['data']['attributes']['primarykey'];
+// $страна1->attributes['primarykey']=$primaryKey;
+echo "Страна=".print_r($страна1,true); 
 
 $лес1= \Лес::instance(
     [
-        'primarykey'=>uuid_gen(),
         'Название'=>'Беловежская Пуща',
         'Площадь'=>222,
         'Заповедник'=>false,
-        'ДатаПоследнегоОсмотра'=>'2010/05/05'
+        'ДатаПоследнегоОсмотра'=>'2015-11-23 13:44:16.616936'
     ],
     [
         'Страна' => ['data' => $страна1],
     ]
     );
     
-// echo "Лес1=".print_r($лес1,true); 
+echo "Лес1=".print_r($лес1,true); 
     
-sendPOSTRequest($restClient,$encoder,"Лес и страна","$domain/Леса",$лес1);
-
+$reply=sendPOSTRequest($restClient,$encoder,"Лес и страна","Леса",$лес1);
+exit;
 
     
 
@@ -107,7 +110,7 @@ $медведь3=  \Медведь::instance(
         'Мама' => ['data' =>  $медведь2 ],
     ]
     );
-sendPOSTRequest($restClient,$encoder,"Медведи","$domain/Медведи/3",$медведь3);
+sendPOSTRequest($restClient,$encoder,"Медведи","Медведи/3",$медведь3);
 
 
 
@@ -115,16 +118,16 @@ sendPOSTRequest($restClient,$encoder,"Медведи","$domain/Медведи/3"
 \fja\FJA::autoload('Schemas/SchemaOfБлоха');
 
 $блоха1=\Блоха::instance(['primarykey'=>uuid_gen(),'Кличка'=>'Машка'],['МедведьОбитания' => ['data' => $медведь1]]);
-sendPOSTRequest($restClient,$encoder,"Блоха1","$domain/Блоха/1",$блоха1);
+sendPOSTRequest($restClient,$encoder,"Блоха1","Блоха/1",$блоха1);
 
 $блоха2=\Блоха::instance(['primarykey'=>uuid_gen(),'Кличка'=>'Сашка'],['МедведьОбитания' => ['data' => $медведь1]]);
-sendPOSTRequest($restClient,$encoder,"Блоха2","$domain/Блоха/1",$блоха2);
+sendPOSTRequest($restClient,$encoder,"Блоха2","Блоха/1",$блоха2);
 
 $блоха3=\Блоха::instance(['primarykey'=>uuid_gen(),'Кличка'=>'Дашка'],['МедведьОбитания' => ['data' => $медведь2]]);
-sendPOSTRequest($restClient,$encoder,"Блоха3","$domain/Блоха/1",$блоха3);
+sendPOSTRequest($restClient,$encoder,"Блоха3","Блоха/1",$блоха3);
 
 $блоха4=\Блоха::instance(['primarykey'=>uuid_gen(),'Кличка'=>'Пашка'],['МедведьОбитания' => ['data' => $медведь3]]);
-sendPOSTRequest($restClient,$encoder,"Блоха4","$domain/Блоха/1",$блоха4);
+sendPOSTRequest($restClient,$encoder,"Блоха4","Блоха/1",$блоха4);
 
 \fja\FJA::autoload('Models/Берлога');
 \fja\FJA::autoload('Schemas/SchemaOfБерлога');
@@ -183,7 +186,7 @@ $берлоги[]=\Берлога::instance(
     ]
     );
     
-sendPOSTRequest($restClient,$encoder,"Берлоги","$domain/Берлоги",$берлоги);
+    sendPOSTRequest($restClient,$encoder,"Берлоги","Берлоги",$берлоги);
 
 
 function uuid_gen() {
@@ -193,9 +196,23 @@ function uuid_gen() {
 
 
 function sendPOSTRequest($restClient,$encoder,$title,$uri,$instance) {
-    $reply=$restClient->request('POST',$uri, ['body'=>$encoder->encodeData($instance)]);
+    $body=$encoder->encodeData($instance);
+    echo "Sent:" .  print_r(json_decode($body,true),true);
+    try {
+        $reply=$restClient->request('POST',$uri, ['body'=>$body]);
+    } catch (ClientException $e) {
+        echo "Ошибка в выполнении запроса: ";
+        if ($e->hasResponse()) {
+            $response=$e->getResponse();
+            $body=$response->getStatusCode() . ' ' . $response->getReasonPhrase();
+            echo "Ответ: " .  print_r($body,true);
+        }
+        exit;
+    }
     echo "\n\n---------------- $title -------------\n";
     echo "StatusCode=" . $reply->getStatusCode() . "\n";
-    echo "ContentType="; print_r($reply->getHeader('content-type'));
-    echo "Body=" .$reply->getBody() . "\n";
+    echo "Headers="; print_r($reply->getHeaders());
+    $body=$reply->getBody();
+    echo "Body=$body\n";
+    return $body;
 }
