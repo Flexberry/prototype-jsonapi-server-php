@@ -2,25 +2,23 @@
 use GuzzleHttp\Exception\ClientException;
 require_once(__DIR__ . '/../../vendor/autoload.php');
 require_once(__DIR__ . '/../../src/fja/FJA.php');
-require_once(__DIR__ . '/../../src/fja/UUID.php');
+echo "BEAR::" . __DIR__ . "\n";
+
 
 $baseHost='http://jsonapitest.local';
-
 // $baseURL='http://prototype-jsonapi-server.ics.perm.ru/';
 $domain='jsonapitest';
 $baseURL="$baseHost";
 
-$restClient = new GuzzleHttp\Client(['base_uri' => $baseHost]);
-
-
-\fja\FJA::setDomainsDir("../../domains");
+\fja\FJA::setDomainsDir(__DIR__."/../../domains");
 \fja\FJA::setDomain($domain);
 
-\fja\FJA::autoload('Models/Лес');
-\fja\FJA::autoload('Schemas/SchemaOfЛес');
+spl_autoload_register(['\fja\FJA', 'autoload'], true, true);
 
-\fja\FJA::autoload('Models/Страна');
-\fja\FJA::autoload('Schemas/SchemaOfСтрана');
+
+
+
+$restClient = new GuzzleHttp\Client(['base_uri' => $baseHost]);
 
 
 $encoder = \Neomerx\JsonApi\Encoder\Encoder::instance([
@@ -31,23 +29,22 @@ $encoder = \Neomerx\JsonApi\Encoder\Encoder::instance([
     'Блоха' => '\SchemaOfБлоха',
 ], new \Neomerx\JsonApi\Encoder\EncoderOptions(JSON_PRETTY_PRINT, $baseURL));
 
+$clientGeneratedUUid=false;
 
-$страна1= \Страна::instance(
-//     null,
-    '5a2a7f79-ea7a-41c8-89ad-88e892bc47fe',
+$страна1= Страна::instance(
+    null,
     [
         'Название'=>'Белоруссия',
     ]
     );
+if ($clientGeneratedUUid) $страна1->setId(\fja\FJA::uuid_gen());
+$reply=sendPOSTRequest($restClient,$encoder,"Страна","Страны",$страна1);
+$id=\fja\FJA::getDataFromJson($reply)['id'];
+$страна1->setId($id);
+echo "BEAR::страна1=";print_r($страна1);
 
-// $reply=sendPOSTRequest($restClient,$encoder,"Страна","Страны",$страна1);
-// $primaryKey=json_decode($reply,true)['data']['attributes']['primarykey'];
-// $страна1->attributes['primarykey']=$primaryKey;
-echo "BEAR::Страна=".print_r($страна1,true); 
-
-$лес1= \Лес::instance(
-//     null,
-    '338c0640-1e26-4340-8a72-506957c6bb20',
+$лес1= Лес::instance(
+    null,
     [
         'Название'=>'Беловежская Пуща',
         'Площадь'=>222,
@@ -58,54 +55,58 @@ $лес1= \Лес::instance(
         'Страна' => ['data' => $страна1],
     ]
     );
-    
-echo "BEAR::Лес1=".print_r($лес1,true); 
-    
+if ($clientGeneratedUUid) $лес1->setId(\fja\FJA::uuid_gen());
 $reply=sendPOSTRequest($restClient,$encoder,"Лес и страна","Леса",$лес1);
+$id=\fja\FJA::getDataFromJson($reply)['id'];
+$лес1->setId($id);
+echo "BEAR::Лес1=";print_r($лес1); 
     
-
-
-\fja\FJA::autoload('Models/Медведь');
-\fja\FJA::autoload('Schemas/SchemaOfМедведь');
-    
-$медведь1=  \Медведь::instance(
-    uuid_gen(),
+$медведь1= Медведь::instance(
+    null,
     [ 
         'ПорядковыйНомер'=>1,
         'Вес'=>101,
         'ЦветГлаз'=>'Зеленый',
         'Пол'=>'Мужской',
-        'ДатаРождения'=>'2010/06/08'
+        'ДатаРождения'=>'2012-09-08 13:56:02.560886'
     ],
     [
         'ЛесОбитания' => ['data' => $лес1],
     ]
     );
+if ($clientGeneratedUUid) $медведь1->setId(\fja\FJA::uuid_gen());
 $reply=sendPOSTRequest($restClient,$encoder,"Медведь1","Медведи",$медведь1);
+$id=\fja\FJA::getDataFromJson($reply)['id'];
+$медведь1->setId($id);
+echo "BEAR::медведь1=";print_r($медведь1); 
 
-$медведь2=  \Медведь::instance(
-    uuid_gen(),
+$медведь2=  Медведь::instance(
+    null,
     [ 
         'ПорядковыйНомер'=>2,
         'Вес'=>96,
         'ЦветГлаз'=>'Карий',
         'Пол'=>'Женский',
-        'ДатаРождения'=>'2010/09/15'
+        'ДатаРождения'=>'2013-10-03 14:04:16.806259'
     ],
     [
         'ЛесОбитания' => ['data' => $лес1],
     ]
     );
+if ($clientGeneratedUUid) $медведь2->setId(\fja\FJA::uuid_gen());
 $reply=sendPOSTRequest($restClient,$encoder,"Медведь2","Медведи",$медведь2);
+$id=\fja\FJA::getDataFromJson($reply)['id'];
+$медведь2->setId($id);
+echo "BEAR::медведь2=";print_r($медведь2); 
 
-$медведь3=  \Медведь::instance(
-    uuid_gen(),
+$медведь3=  Медведь::instance(
+    null,
     [ 
         'ПорядковыйНомер'=>3,
         'Вес'=>65,
         'ЦветГлаз'=>'Синий',
         'Пол'=>'Мужской',
-        'ДатаРождения'=>'2012/12/15'
+        'ДатаРождения'=>'2015-11-23 14:47:40.065452'
     ],
     [
         'ЛесОбитания' => ['data' => $лес1],
@@ -113,31 +114,45 @@ $медведь3=  \Медведь::instance(
         'Мама' => ['data' =>  $медведь2 ],
     ]
     );
+if ($clientGeneratedUUid) $медведь3->setId(\fja\FJA::uuid_gen());
 $reply=sendPOSTRequest($restClient,$encoder,"Медведь3","Медведи",$медведь3);
+$id=\fja\FJA::getDataFromJson($reply)['id'];
+$медведь3->setId($id);
+echo "BEAR::медведь3=";print_r($медведь3); 
 
 
-\fja\FJA::autoload('Models/Блоха');
-\fja\FJA::autoload('Schemas/SchemaOfБлоха');
 
-$reply=$блоха1=\Блоха::instance(uuid_gen(),['Кличка'=>'Машка'],['МедведьОбитания' => ['data' => $медведь1]]);
-sendPOSTRequest($restClient,$encoder,"Блоха1","Блоха/1",$блоха1);
+$блоха1=\Блоха::instance(null,['Кличка'=>'Машка'],['МедведьОбитания' => ['data' => $медведь1]]);
+if ($clientGeneratedUUid) $блоха1->setId(\fja\FJA::uuid_gen());
+$reply=sendPOSTRequest($restClient,$encoder,"Блоха1","Блоха/1",$блоха1);
+$id=\fja\FJA::getDataFromJson($reply)['id'];
+$блоха1->setId($id);
+echo "BEAR::блоха1=";print_r($блоха1); 
 
-$блоха2=\Блоха::instance(uuid_gen(),['Кличка'=>'Сашка'],['МедведьОбитания' => ['data' => $медведь1]]);
+$блоха2=\Блоха::instance(null,['Кличка'=>'Сашка'],['МедведьОбитания' => ['data' => $медведь1]]);
+if ($clientGeneratedUUid) $блоха2->setId(\fja\FJA::uuid_gen());
 $reply=sendPOSTRequest($restClient,$encoder,"Блоха2","Блоха/1",$блоха2);
+$id=\fja\FJA::getDataFromJson($reply)['id'];
+$блоха2->setId($id);
+echo "BEAR::блоха2=";print_r($блоха2); 
 
-$блоха3=\Блоха::instance(uuid_gen(),['Кличка'=>'Дашка'],['МедведьОбитания' => ['data' => $медведь2]]);
+$блоха3=\Блоха::instance(null,['Кличка'=>'Дашка'],['МедведьОбитания' => ['data' => $медведь2]]);
+if ($clientGeneratedUUid) $блоха3->setId(\fja\FJA::uuid_gen());
 $reply=sendPOSTRequest($restClient,$encoder,"Блоха3","Блоха/1",$блоха3);
+$id=\fja\FJA::getDataFromJson($reply)['id'];
+$блоха3->setId($id);
+echo "BEAR::блоха3=";print_r($блоха3); 
 
-$блоха4=\Блоха::instance(uuid_gen(),['Кличка'=>'Пашка'],['МедведьОбитания' => ['data' => $медведь3]]);
+$блоха4=\Блоха::instance(null,['Кличка'=>'Пашка'],['МедведьОбитания' => ['data' => $медведь3]]);
+if ($clientGeneratedUUid) $блоха4->setId(\fja\FJA::uuid_gen());
 $reply=sendPOSTRequest($restClient,$encoder,"Блоха4","Блоха/1",$блоха4);
-
-\fja\FJA::autoload('Models/Берлога');
-\fja\FJA::autoload('Schemas/SchemaOfБерлога');
+$id=\fja\FJA::getDataFromJson($reply)['id'];
+$блоха4->setId($id);
+echo "BEAR::блоха4=";print_r($блоха4); 
 
 $берлога1=\Берлога::instance(
-    uuid_gen(),
+    null,
     [ 
-        'primarykey'=>uuid_gen(),
         'Наименование'=>'ТаунХаус',
         'Комфортность'=>99,
         'Заброшена'=>false,
@@ -147,12 +162,15 @@ $берлога1=\Берлога::instance(
         'Медведь' => ['data' =>  $медведь1 ],
     ]
     );
-    $reply=sendPOSTRequest($restClient,$encoder,"Берлога1","Берлоги",$берлога1);
+if ($clientGeneratedUUid) $берлога1->setId(\fja\FJA::uuid_gen());
+$reply=sendPOSTRequest($restClient,$encoder,"Берлога1","Берлоги",$берлога1);
+$id=\fja\FJA::getDataFromJson($reply)['id'];
+$берлога1->setId($id);
+echo "BEAR::берлога1=";print_r($берлога1); 
 
 $берлога2=\Берлога::instance(
-    uuid_gen(),
+    null,
     [ 
-        'primarykey'=>uuid_gen(),
         'Наименование'=>'У сосны',
         'Комфортность'=>60,
         'Заброшена'=>false,
@@ -162,13 +180,16 @@ $берлога2=\Берлога::instance(
         'Медведь' => ['data' =>  $медведь1 ],
     ]
     );
-    $reply=sendPOSTRequest($restClient,$encoder,"Берлога2","Берлоги",$берлога2);
+if ($clientGeneratedUUid) $берлога2->setId(\fja\FJA::uuid_gen());
+$reply=sendPOSTRequest($restClient,$encoder,"Берлога2","Берлоги",$берлога2);
+$id=\fja\FJA::getDataFromJson($reply)['id'];
+$берлога2->setId($id);
+echo "BEAR::берлога2=";print_r($берлога2); 
 
     
 $берлога3=\Берлога::instance(
-    uuid_gen(),
+    null,
     [ 
-        'primarykey'=>uuid_gen(),
         'Наименование'=>'У дуба',
         'Комфортность'=>60,
         'Заброшена'=>false,
@@ -178,29 +199,30 @@ $берлога3=\Берлога::instance(
         'Медведь' => ['data' =>  $медведь2 ],
     ]
     );
-    $reply=sendPOSTRequest($restClient,$encoder,"Берлога3","Берлоги",$берлога3);
+if ($clientGeneratedUUid) $берлога3->setId(\fja\FJA::uuid_gen());
+$reply=sendPOSTRequest($restClient,$encoder,"Берлога3","Берлоги",$берлога3);
+$id=\fja\FJA::getDataFromJson($reply)['id'];
+$берлога3->setId($id);
+echo "BEAR::берлога3=";print_r($берлога3); 
     
 $берлога4=\Берлога::instance(
-    uuid_gen(),
+    null,
     [ 
-        'primarykey'=>uuid_gen(),
         'Наименование'=>'Детская',
         'Комфортность'=>80,
-        'Заброшена'=>false,
+        'Заброшена'=>true,
     ],
     [
         'ЛесРасположения' => ['data' => $лес1],
         'Медведь' => ['data' =>  $медведь3 ],
     ]
     );
-    
-    $reply=sendPOSTRequest($restClient,$encoder,"Берлога4","Берлоги",$берлога4);
+if ($clientGeneratedUUid) $берлога4->setId(\fja\FJA::uuid_gen());
+$reply=sendPOSTRequest($restClient,$encoder,"Берлога4","Берлоги",$берлога4);
+$id=\fja\FJA::getDataFromJson($reply)['id'];
+$берлога4->setId($id);
+echo "BEAR::берлога4=";print_r($берлога4); 
 
-
-function uuid_gen() {
-    $ret=UUID::v4();
-    return $ret;
-}
 
 
 function sendPOSTRequest($restClient,$encoder,$title,$uri,$instance) {

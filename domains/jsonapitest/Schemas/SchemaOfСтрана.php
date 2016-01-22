@@ -1,20 +1,11 @@
 <?php
-class SchemaOfСтрана extends \Neomerx\JsonApi\Schema\SchemaProvider
-{
-    protected $resourceType = 'Страна';
-    protected $selfSubUrl  = '/Страны/';
-    protected $isShowSelfInIncluded = false;
+use fja\Schema;
+class SchemaOfСтрана extends Schema {
 
-
-    public function getId($страна) {
-        $ret=(key_exists('primarykey',$страна->attributes)?$страна->attributes['primarykey']:null);
-        return $ret;
-    }
-
-    public function getAttributes($страна)
-    {
-        return $страна->attributes;
-    }
-    
-        
+    function __construct($factory,$container) {
+        $this->resourceType = 'Страна';
+        $this->selfSubUrl  = '/Страны/';
+        $this->isShowSelfInIncluded = false;
+        parent::__construct($factory,$container);
+    }    
 }

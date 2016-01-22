@@ -1,8 +1,10 @@
 <?php
 namespace fja;
+require_once(__DIR__ . '/UUID.php');
+
 // $domain=dirName($_SERVER["REQUEST_URI"]);
 // echo "DOMAIN=$domain\n";
-
+// echo "FJA::" . __DIR__."\n";
 class FJA {
 
     public static $domainsDir;
@@ -10,6 +12,10 @@ class FJA {
     private static $domainToDBName= [
         'jsonapitest'=>'JsonApiTest'
         ];
+    private static $domainIncludeDir;
+    private static $schemasIncludeDir;
+    private static $modelsIncludeDir;
+    private static $FJAIncludeDir;
     
     public static function setDomainsDir($domainsDir) {
         self::$domainsDir=$domainsDir;
@@ -18,11 +24,14 @@ class FJA {
 
     public static function setDomain($domain) {
         self::$domain=$domain;
-//         echo "domain=". self::$domain . "\n" ;
+        self::$domainIncludeDir=self::$domainsDir . "/" . self::$domain;
+        self::$schemasIncludeDir=self::$domainIncludeDir."/Schemas";
+        self::$modelsIncludeDir=self::$domainIncludeDir."/Models";
+        self::$FJAIncludeDir= __DIR__."/..";
     }
 
-    public static function autoload($className)
-    {
+    public static function autoload($className) {
+//         echo "AUTOLOAD $className:\n";
         if (@is_array($_SERVER) && key_exists('DOCUMENT_ROOT',$_SERVER) && key_exists('HTTP_HOST',$_SERVER)) {  //Called in WEB-environment
             self::setDomainsDir($_SERVER["DOCUMENT_ROOT"]. "/../../domains");
             $path=explode('.',trim($_SERVER["HTTP_HOST"],'/'));
@@ -30,20 +39,54 @@ class FJA {
             $domain=$path[0];
             self::setDomain($domain);
         }
-        $includeDir=self::$domainsDir . "/" . self::$domain;
-//         echo "domainsDir=". self::$domainsDir . " domain=" . self::$domain  . " includeDir=$includeDir\n" ;
-        ini_set('include_path', $includeDir. ":" . ini_get('include_path'));
-        $classFile=str_replace('\'',"/",$className) . ".php";
-        $ClassFile="$includeDir/$classFile";
-//         echo "classFile=$classFile ClassFile=$ClassFile\n";
-        if (file_exists($ClassFile)) {
-            include_once($classFile);
+        $path=explode('\\',trim($className,'\\'));  
+//         echo "PATH=".print_r($path,true);
+        if (count($path)==1) {  // JSONAPI Class
+            $className=$path[0];
+            $classFile="$className.php";
+            $found=false;
+            if (substr($className,0,8)=='SchemaOf') {   //Subclass of fja\Schema
+                $schemaClassFile=self::$schemasIncludeDir."/$classFile";
+//                 echo "schemaClassFile=$schemaClassFile\n";
+                if (file_exists($schemaClassFile)) {
+//                     echo "SchemaClass $className Found\n\n";
+                    $found=true;
+                    include_once($schemaClassFile);
+                }
+            }
+            if (!$found) {  // Subclass of fja\Model
+                $modelClassFile=self::$modelsIncludeDir."/$classFile";
+//                 echo "modelClassFile='$modelClassFile'\n";
+                if (file_exists($modelClassFile)) {
+//                     echo "ModelClass $className Found\n\n";
+                    include_once($modelClassFile);
+                }
+            }
+        } elseif ($path[0]=='fja') {    //Class of fja\... namespace
+            $classFile=str_replace('\\',"/",$className) . ".php";
+            $FJAClassFile=self::$FJAIncludeDir."/$classFile";
+//             echo "classFile=$classFile FJAClassFile=$FJAClassFile\n";
+            if (file_exists($FJAClassFile)) {
+//                 echo "FJAClass $className Found\n\n";
+                include_once($FJAClassFile);
+            }            
         }
     }
+    
+    public static function getDataFromJson($json) {
+        $jsonTree=json_decode($json,true);
+        return $jsonTree['data'];
+    }
+
     
     public static function getDBName() {
         $ret=(key_exists(self::$domain,self::$domainToDBName)?self::$domainToDBName[self::$domain]:self::$domain);
         return $ret;
     }    
-
+    
+    public static function uuid_gen() {
+        $ret=\UUID::v4();
+        return $ret;
+    }
+    
 }

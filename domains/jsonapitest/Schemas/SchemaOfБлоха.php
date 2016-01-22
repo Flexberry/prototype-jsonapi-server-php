@@ -1,22 +1,11 @@
 <?php
-class SchemaOfБлоха extends \Neomerx\JsonApi\Schema\SchemaProvider
-{
-    protected $resourceType = 'Блоха';
-    protected $selfSubUrl  = '/Блохи/';
-    protected $isShowSelfInIncluded = true;
+use fja\Schema;
+class SchemaOfБлоха extends Schema {
 
-    public function getId($блоха) {
-        return $блоха->attributes['primarykey'];
-    }
-
-    public function getAttributes($блоха)
-    {
-        return $блоха->attributes;
-    }
-    
-    public function getRelationships($блоха, array $includeRelationships = []) {
-        $relationships=$блоха->relationships;
-        return $блоха->relationships;
-    }  
-    
+    function __construct($factory,$container) {
+        $this->resourceType = 'Блоха';
+        $this->selfSubUrl  = '/Блохи/';
+        $this->isShowSelfInIncluded = false;
+        parent::__construct($factory,$container);
+    }    
 }

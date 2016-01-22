@@ -1,28 +1,11 @@
 <?php
-class SchemaOfЛес extends \Neomerx\JsonApi\Schema\SchemaProvider
-{
-    protected $resourceType = 'Лес';
-    protected $selfSubUrl  = '/Леса/';
-    protected $isShowSelfInIncluded = false;
+use fja\Schema;
+class SchemaOfЛес extends Schema {
 
-    public function getId($лес) {
-        $ret=(key_exists('primarykey',$лес->attributes)?$лес->attributes['primarykey']:null);
-        return $ret;
-    }
-
-    public function getAttributes($лес)
-    {
-        return $лес->attributes;
-    }
-    
-    public function getRelationships($лес, array $includeRelationships = []) {
-        $relationships=$лес->relationships;
-        return $лес->relationships;
-    }  
-
-    public function getIncludePaths() {
-        return [];
-//        return ['Страна'];
-    }
-    
+    function __construct($factory,$container) {
+        $this->resourceType = 'Лес';
+        $this->selfSubUrl  = '/Леса/';
+        $this->isShowSelfInIncluded = false;
+        parent::__construct($factory,$container);
+    }    
 }

@@ -1,32 +1,20 @@
 <?php
-class Лес extends stdClass {
-    public $primaryKeyName='primarykey';
-    public $attributes;
-    public $relationships;
-    private $attrTypes=[
+use fja\Model;
+
+class Лес extends Model {        
+    public function __construct($id,$attributes,$relationships) {
+        $this->primaryKeyName='primarykey';
+        $this->attrTypes=[
         'Название'=>'string',
         'Площадь'=>'integer',
         'Заповедник'=>'boolean',
         'ДатаПоследнегоОсмотра'=>'timestamp'
-
         ];
-    
-    public function __construct($id=null,$attributes=[],$relationships=[]) {
-        if ($id) {
-            $attributes[$this->primaryKeyName]=$id;
-        }
-        $this->attributes=$attributes;
-        $this->relationships=$relationships;
+        parent::__construct($id,$attributes,$relationships);
     }
     
      public static function instance($id=null,$attributes=[],$relationships=[]) {
         return new self($id,$attributes,$relationships);
      }
-    
-    public function isBoolean($attrName) {
-        $attrType=@$this->attrTypes[$attrName];
-        $ret=($attrType=='boolean');
-        return $ret;        
-    }
-    
+     
 }

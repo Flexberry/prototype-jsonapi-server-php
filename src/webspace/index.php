@@ -213,12 +213,12 @@ function addObjectToDb($object) {
     $primaryKeyName=$object->primaryKeyName;
 //     echo "primaryKeyName=$primaryKeyName\n";
     if (!key_exists($primaryKeyName,$object->attributes) || !trim($object->attributes[$primaryKeyName])) {
-        $primaryKey=uuid_gen();
+        $primaryKey=\fja\FJA::uuid_gen();
         $object->attributes[$primaryKeyName]=$primaryKey;
     } else {
         $primaryKey=$object->attributes[$primaryKeyName];
     }
-    return $object;    
+//     return $object;    
 //     echo "primaryKey=$primaryKey\n";
     $className=get_class($object);
     $insertCmd="INSERT INTO public." . $className . ' ';; 
@@ -239,18 +239,21 @@ function addObjectToDb($object) {
     }    
     
     $insertCmd.='('. implode(',',$fieldNames) . ') VALUES (' . implode(',',$fieldValues) . ')';
-    echo "insertCmd=$insertCmd\n";
+//     echo "insertCmd=$insertCmd\n";
 
     $dbh=connectDb();
 //     echo "DBH=".print_r($dbh,true);
     $count = $dbh->exec($insertCmd);
-    echo "Inserted $count records\n";
+    if (($errorCode=intval($dbh->errorCode()))>0) {
+        $errorInfo=$dbh->errorInfo();
+        $driverCode=(key_exists(1,$errorInfo)?$errorInfo[1]:'');
+        $driverMessage=(key_exists(2,$errorInfo)?$errorInfo[2]:'');
+        $detail="$errorCode/$driverCode: $driverMessage";
+        echo $detail;
+        sendErrorReply(['status'=>'403','title'=>'Object not created, database error','detail'=>$detail]);
+    }
+//     echo "Inserted $count records\n";
     return $object;    
 }
 
-/* UUID */
-function uuid_gen() {
-    require_once(__DIR__ . '/../../src/fja/UUID.php');
-    $ret=UUID::v4();
-    return $ret;
-}
+
