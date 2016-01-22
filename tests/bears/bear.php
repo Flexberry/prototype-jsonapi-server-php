@@ -6,7 +6,8 @@ echo "BEAR::" . __DIR__ . "\n";
 
 
 $baseHost='http://jsonapitest.local';
-// $baseURL='http://prototype-jsonapi-server.ics.perm.ru/';
+// $baseHost='http://flexberryJsonAPI.local';   // Internal HOST without domain
+// $baseURL='http://prototype-jsonapi-server.ics.perm.ru/'; // Extternal HOST without domain
 $domain='jsonapitest';
 $baseURL="$baseHost";
 
@@ -42,7 +43,7 @@ $reply=sendPOSTRequest($restClient,$encoder,"Страна","Страны",$ст�
 $id=\fja\FJA::getDataFromJson($reply)['id'];
 $страна1->setId($id);
 echo "BEAR::страна1=";print_r($страна1);
-
+exit;
 $лес1= Лес::instance(
     null,
     [

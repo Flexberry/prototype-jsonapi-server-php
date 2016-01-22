@@ -2,6 +2,12 @@
 // use \Neomerx\JsonApi\Encoder;
 require(__DIR__ . '/../../vendor/autoload.php');
 require(__DIR__ . '/../fja/FJA.php');  //Базовый класс Flexberry JSON API
+
+\fja\FJA::setDomainsDir($_SERVER["DOCUMENT_ROOT"]. "/../../domains");   //Set home directory for all modelClass and Schemas
+$path=explode('.',trim($_SERVER["HTTP_HOST"],'/'));
+$domain=$path[0];   //Domain as first subdomain in domain name
+\fja\FJA::setDomain($domain);   //Set root for all modelClass and Schemas
+
 // phpinfo();
 spl_autoload_register(['\fja\FJA', 'autoload'], true, true);
 $baseURL="http://".$_SERVER["HTTP_HOST"];

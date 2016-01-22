@@ -9,6 +9,7 @@ class FJA {
 
     public static $domainsDir;
     public static $domain;
+    private static $defaultDomain='jsonapitest';    //Домен по умолчвнию (в случае осутствия указанного)
     private static $domainToDBName= [
         'jsonapitest'=>'JsonApiTest'
         ];
@@ -23,6 +24,9 @@ class FJA {
     }
 
     public static function setDomain($domain) {
+        if (!is_dir(self::$domainsDir . "/$domain")) {
+            $domain=self::$defaultDomain;
+        }
         self::$domain=$domain;
         self::$domainIncludeDir=self::$domainsDir . "/" . self::$domain;
         self::$schemasIncludeDir=self::$domainIncludeDir."/Schemas";
@@ -32,14 +36,7 @@ class FJA {
 
     public static function autoload($className) {
 //         echo "AUTOLOAD $className:\n";
-        if (@is_array($_SERVER) && key_exists('DOCUMENT_ROOT',$_SERVER) && key_exists('HTTP_HOST',$_SERVER)) {  //Called in WEB-environment
-            self::setDomainsDir($_SERVER["DOCUMENT_ROOT"]. "/../../domains");
-            $path=explode('.',trim($_SERVER["HTTP_HOST"],'/'));
-//             echo "PATH=";print_r($path);exit;
-            $domain=$path[0];
-            self::setDomain($domain);
-        }
-        $path=explode('\\',trim($className,'\\'));  
+         $path=explode('\\',trim($className,'\\'));  
 //         echo "PATH=".print_r($path,true);
         if (count($path)==1) {  // JSONAPI Class
             $className=$path[0];
