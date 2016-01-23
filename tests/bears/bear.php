@@ -7,7 +7,7 @@ echo "BEAR::" . __DIR__ . "\n";
 
 $baseHost='http://jsonapitest.local';
 // $baseHost='http://flexberryJsonAPI.local';   // Internal HOST without domain
-// $baseURL='http://prototype-jsonapi-server.ics.perm.ru/'; // Extternal HOST without domain
+// $baseHost='http://prototype-jsonapi-server.ics.perm.ru/'; // ternal HOST without domain
 $domain='jsonapitest';
 $baseURL="$baseHost";
 

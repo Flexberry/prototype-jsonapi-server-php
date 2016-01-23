@@ -59,7 +59,7 @@ class FJA {
                     include_once($modelClassFile);
                 }
             }
-        } elseif ($path[0]=='fja') {    //Class of fja\... namespace
+        } else  { //if ($path[0]=='fja') {    //Class of fja\... namespace
             $classFile=str_replace('\\',"/",$className) . ".php";
             $FJAClassFile=self::$FJAIncludeDir."/$classFile";
 //             echo "classFile=$classFile FJAClassFile=$FJAClassFile\n";
@@ -67,7 +67,7 @@ class FJA {
 //                 echo "FJAClass $className Found\n\n";
                 include_once($FJAClassFile);
             }            
-        }
+        } 
     }
     
     public static function getDataFromJson($json) {
@@ -75,6 +75,34 @@ class FJA {
         return $jsonTree['data'];
     }
 
+    public static function decodeData($data) {
+        if (!key_exists('type',$data)) {
+            echo "Отсутствует аттрибут type в " . print_r($data,true) ;
+            return [];
+        }
+        $type=$data['type'];
+        if (!key_exists('attributes',$data)) {
+            echo "Отсутствует аттрибут attributes в " . print_r($data,true) ;
+            return [];
+        }
+        $attributes=$data['attributes'];
+        $relationships=[];
+        if (key_exists('relationships',$data)) {
+            $relationships=$data['relationships'];
+        }
+        
+        $modelClass="Models/$type";
+    //     echo "modelClass=$modelClass\n";
+        \fja\FJA::autoload($modelClass);
+        $schemaClass="Schemas/SchemaOf$type";
+        \fja\FJA::autoload($schemaClass);
+    //     echo "schemaClass=$schemaClass\n";
+        $className="\\$type";
+    //     echo "className=$className\n";
+        $object=new $className(null,$attributes,$relationships);
+    //     echo "Object=".print_r($object,true);
+        return $object; 
+    }
     
     public static function getDBName() {
         $ret=(key_exists(self::$domain,self::$domainToDBName)?self::$domainToDBName[self::$domain]:self::$domain);
@@ -84,6 +112,50 @@ class FJA {
     public static function uuid_gen() {
         $ret=\UUID::v4();
         return $ret;
+    }
+    
+    public static function isAssoc($arr) {
+        return array_keys($arr) !== range(0, count($arr) - 1);
+    }
+    
+    public static function formSchemas($objects) {
+        $ret=[];
+        foreach ($objects as $object) {
+            $type=get_class($object);
+            $ret[$type]="SchemaOf$type";
+            if (isset($object->relationships) && is_Array($object->relationships)) {
+                foreach ($object->relationships as $relationships) {
+                    if (key_exists('data',$relationships) && key_exists('type',$relationships['data'])) {
+                        $subType=$relationships['data']['type'];
+                        $ret[$subType]="SchemaOf$subType";
+                    }
+                }
+            }
+        }
+        return $ret;
+    }
+
+    
+    
+    /*
+    * Replace ['type']=>type,['id']->id on object in relationships
+    */
+    public static function replaceRelationshipsObject($object) {
+        if (isset($object->relationships) && is_Array($object->relationships)) {
+            foreach ($object->relationships as $relName=>$relationships) {
+                if (key_exists('data',$relationships) && key_exists('id',$relationships['data'])) {
+                    $subType=$relationships['data']['type'];
+                    $subId=$relationships['data']['id'];
+    //                 echo "subType=$subType subId=$subId\n";
+                    $modelClass="Models/$subType";
+                    \fja\FJA::autoload($modelClass);
+                    $schemaClass="Schemas/SchemaOf$subType";
+                    \fja\FJA::autoload($schemaClass);
+                    $object->relationships[$relName]['data']=new $subType($subId);
+                }
+            }
+        }
+        return $object;
     }
     
 }
