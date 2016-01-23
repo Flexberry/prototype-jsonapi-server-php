@@ -2,6 +2,7 @@
 use \fja\FJA;
 use \Neomerx\JsonApi\Encoder\Encoder;
 use \request\post\Post;
+use \request\get\Get;
 use \responce\Responce;
 use storage\pdo\Pdo;
 
@@ -44,15 +45,16 @@ switch ($_SERVER["REQUEST_METHOD"]) {
         $objectTree=json_decode($json,true);
         $location=$objectTree['data']['links']['self'];
         Responce::sendCreatedObject($location,$json);
-        
         break;;
     case 'GET':    //Запрос объектов
         echo "Fetch object $request_uri<br>\n";
-        $parsed=parse_url($request_uri);
-        print_r($parsed);
-        echo "PATH=".urldecode($parsed['path'])."<br>\n";
-        echo "QUERY=".urldecode($parsed['query'])."<br>\n";
-        phpinfo();
+        $parsedRequest=Get::urlParse($request_uri);
+        echo "REQUEST=<pre>";print_r($parsedRequest);echo "</pre>";
+//         $parsed=parse_url($request_uri);
+//         print_r($parsed);
+//         echo "PATH=".urldecode($parsed['path'])."<br>\n";
+//         echo "QUERY=".urldecode($parsed['query'])."<br>\n";
+//         phpinfo();
         break;;
     case 'PATCH':    //Корректировка объектов
         echo "Update object $request_uri<br>\n";

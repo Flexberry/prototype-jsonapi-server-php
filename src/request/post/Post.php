@@ -1,10 +1,10 @@
 <?php 
 
-namespace request\post;
+namespace request\get;
 /*
  *  Class support POST request
  */
-class Post {
+class Get {
 
     /*
      * Get POST data, Decode JSON to Array
