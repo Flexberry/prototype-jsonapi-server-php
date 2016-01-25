@@ -10,7 +10,7 @@ class Get {
         while (substr($request_uri,0,1)=='/') $request_uri=substr($request_uri,1);
         $parsed=parse_url($request_uri);
         $path=trim(urldecode($parsed['path']),'/');   
-        $query=urldecode($parsed['query']);  
+        $query=key_exists('query',$parsed)?urldecode($parsed['query']):'';  
         while (($nPath=str_replace('//','/',$path))!=$path) $path=$nPath;   //replace // to / in path
         $steps=explode('/',$path);
         $retPath['collection']=$steps[0];

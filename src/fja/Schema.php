@@ -3,9 +3,16 @@ namespace fja;
 
 class Schema extends \Neomerx\JsonApi\Schema\SchemaProvider
 {
-    protected $resourceType;
-    protected $selfSubUrl;
-    protected $isShowSelfInIncluded;
+    public static $ResourceType;
+    public static $SelfSubUrl;
+    public static $IsShowSelfInIncluded;
+
+    function __construct($factory,$container) {
+        $this->resourceType = static::$ResourceType;
+        $this->selfSubUrl  = static::$SelfSubUrl;
+        $this->isShowSelfInIncluded = static::$IsShowSelfInIncluded;
+        parent::__construct($factory,$container);
+    }    
 
 
     public function getId($object) {

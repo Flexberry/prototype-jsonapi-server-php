@@ -1,11 +1,15 @@
 <?php
 use \fja\FJA;
 use \Neomerx\JsonApi\Encoder\Encoder;
+use \Neomerx\JsonApi\Encoder\EncoderOptions;
+use \Neomerx\JsonApi\Schema\Link;
+
 use \request\post\Post;
 use \request\get\Get;
 use \responce\Responce;
-use storage\pdo\Pdo;
+use storage\pdostore\Pdostore;
 
+header ("Content-type: text/html; charset=utf-8");
 require(__DIR__ . '/../../vendor/autoload.php');
 require(__DIR__ . '/../fja/FJA.php');  //Базовый класс Flexberry JSON API
 
@@ -16,8 +20,10 @@ FJA::setDomain($domain);   //Set root for all modelClass and Schemas
 
 // phpinfo();
 spl_autoload_register(['\fja\FJA', 'autoload'], true, true);
+
 $baseURL="http://".$_SERVER["HTTP_HOST"];
 $request_uri=$_SERVER["REQUEST_URI"];
+$href=$baseURL.urldecode($request_uri);
 switch ($_SERVER["REQUEST_METHOD"]) {
     case 'POST':    //Создание объектов
 //         echo "Create object $request_uri<br>\n";
@@ -32,11 +38,11 @@ switch ($_SERVER["REQUEST_METHOD"]) {
             Responce::sendErrorReply(['status'=>'403','title'=>'Several objects in request (included option)']);
         }
         $object=$listObjects[0];
-        Pdo::addObjectToDb($object); 
+        Pdostore::addObjectToDb($object); 
 //         echo "object=".print_r($object,true);        
         $schemas=FJA::formSchemas([$object]);
 //         echo "schemas=".print_r($schemas,true);
-        $encoder = Encoder::instance($schemas, new \Neomerx\JsonApi\Encoder\EncoderOptions(JSON_PRETTY_PRINT, $baseURL));
+        $encoder = Encoder::instance($schemas, new EncoderOptions(JSON_PRETTY_PRINT, $baseURL));
 //         echo "encoder=".print_r($encoder,true);
         $object=FJA::replaceRelationshipsObject($object);        
 //         echo "object=".print_r($object,true);
@@ -47,13 +53,30 @@ switch ($_SERVER["REQUEST_METHOD"]) {
         Responce::sendCreatedObject($location,$json);
         break;;
     case 'GET':    //Запрос объектов
+        $links=[
+            Link::SELF => new Link($href, null, true)
+        ];
         echo "Fetch object $request_uri<br>\n";
         $parsedRequest=Get::urlParse($request_uri);
-        echo "REQUEST=<pre>";print_r($parsedRequest);echo "</pre>";
-//         $parsed=parse_url($request_uri);
-//         print_r($parsed);
-//         echo "PATH=".urldecode($parsed['path'])."<br>\n";
-//         echo "QUERY=".urldecode($parsed['query'])."<br>\n";
+        $path=$parsedRequest['path'];
+        $query=$parsedRequest['query'];
+        $type=ListTypes::getTypeBySubUrl($path['collection']);
+        $path['type']=$type;
+        $objects=Pdostore::getObjects($path,$query);
+        echo "<pre>Objects=";print_r($objects);echo "</pre>\n";
+        $schemas=FJA::formSchemas($objects);
+//        echo "schemas=".print_r($schemas,true);
+        if (key_exists('id',$path)) {   // get one object
+            $encoder = Encoder::instance($schemas, new EncoderOptions(JSON_PRETTY_PRINT, $baseURL));
+            $json=$encoder->withLinks($links)->encodeData($objects[0]);
+            echo "<pre>JSON=";print_r(json_decode($json,true));echo "</pre>\n";
+        } else {    //get collection of objects
+            $encoder = Encoder::instance($schemas, new EncoderOptions(JSON_PRETTY_PRINT, null));
+//             echo "encoder=".print_r($encoder,true);
+            $json=$encoder->withLinks($links)->encodeData($objects);
+            echo "<pre>JSON=";print_r(json_decode($json,true));echo "</pre>\n";
+        }
+
 //         phpinfo();
         break;;
     case 'PATCH':    //Корректировка объектов

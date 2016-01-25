@@ -42,7 +42,10 @@ class FJA {
             $className=$path[0];
             $classFile="$className.php";
             $found=false;
-            if (substr($className,0,8)=='SchemaOf') {   //Subclass of fja\Schema
+            if ($className=='ListTypes') {
+                $listTypesFile=self::$domainIncludeDir."/ListTypes.php";
+                include_once($listTypesFile);
+            } elseif (substr($className,0,8)=='SchemaOf') {   //Subclass of fja\Schema
                 $schemaClassFile=self::$schemasIncludeDir."/$classFile";
 //                 echo "schemaClassFile=$schemaClassFile\n";
                 if (file_exists($schemaClassFile)) {

@@ -1,24 +1,13 @@
 <?php
-class SchemaOfМедведь extends \Neomerx\JsonApi\Schema\SchemaProvider
+use fja\Schema;
+
+class SchemaOfМедведь extends Schema
 {
-    protected $resourceType = 'Медведь';
-    protected $selfSubUrl  = '/Медведи/';
-    protected $isShowSelfInIncluded = true;
 
+    public static $ResourceType='Медведь';
+    public static $SelfSubUrl='/Медведи/';
+    public static $IsShowSelfInIncluded=true;
 
-    public function getId($медведь) {
-        return $медведь->attributes['primarykey'];
-    }
-    
-    public function getAttributes($медведь)
-    {
-        return $медведь->attributes;
-    }
-    
-    public function getRelationships($медведь, array $includeRelationships = []) {
-        $relationships=$медведь->relationships;
-        return $медведь->relationships;
-    }  
     
 //     public function getIncludePaths() {
 //         return ['Папа','Мама'];

@@ -2,10 +2,8 @@
 use fja\Schema;
 class SchemaOfСтрана extends Schema {
 
-    function __construct($factory,$container) {
-        $this->resourceType = 'Страна';
-        $this->selfSubUrl  = '/Страны/';
-        $this->isShowSelfInIncluded = false;
-        parent::__construct($factory,$container);
-    }    
+    public static $ResourceType='Страна';
+    public static $SelfSubUrl='/Страны/';
+    public static $IsShowSelfInIncluded=false;
+
 }
