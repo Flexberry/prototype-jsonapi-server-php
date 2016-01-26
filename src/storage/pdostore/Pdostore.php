@@ -70,11 +70,11 @@ class Pdostore {
 //         
 //     }
 
-    public static function getObjects($path,$query) {
-        $objects=[];
-//         echo "getObjects::path=<pre>";print_r($path);echo "</pre>";
+    public static function getObjects($type,$id,$query) {
+//         echo "getObjects:: type=$type id=$id </pre>";
 //         echo "getObjects::query=<pre>";print_r($query);echo "</pre>";
-        $modelClassName=$path['type'];
+        $objects=[];
+        $modelClassName=$type;
         if (!$modelClassName || !class_exists($modelClassName)) {
             $detail="The collection ".$path['collection']." does not exist";
             \responce\Responce::sendErrorReply(['status'=>'404','title'=>'The collection does not exist','detail'=>$detail]);            
@@ -93,8 +93,8 @@ class Pdostore {
             $FieldList[]='"' . $fieldName . '"';
         }
         $fetchtCmd='SELECT ' . implode(',',$FieldList) . " FROM \"public\".\"$modelClassName\""; 
-        if (key_exists('id',$path)) {   //Get Object By Id
-            $fetchtCmd.= "WHERE \"". $PrimaryKeyName . "\" = '" . $path['id'] . "'";
+        if ($id!==null) {   //Get Object By Id
+            $fetchtCmd.= "WHERE \"". $PrimaryKeyName . "\" = '" . $id . "'";
         }
 //         echo "fetchtCmd=$fetchtCmd<br>\n";
         $dbh=self::connectDb();

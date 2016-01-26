@@ -20,7 +20,7 @@ class Get {
                 if ($steps[2]=='relationships') {
                     $retPath['relationship']=@$steps[3];
                 } else {
-                    $retPath['attribute']=$steps[2];
+                    $retPath['related']=array_slice($steps,2);
                 }
             }
             
