@@ -32,6 +32,7 @@ class FJA {
         self::$schemasIncludeDir=self::$domainIncludeDir."/Schemas";
         self::$modelsIncludeDir=self::$domainIncludeDir."/Models";
         self::$FJAIncludeDir= __DIR__."/..";
+//        echo "FJAIncludeDir=".self::$FJAIncludeDir."";
     }
 
     public static function autoload($className) {
@@ -128,9 +129,22 @@ class FJA {
             $ret[$type]="SchemaOf$type";
             if (isset($object->relationships) && is_Array($object->relationships)) {
                 foreach ($object->relationships as $relationships) {
-                    if (key_exists('data',$relationships) && key_exists('type',$relationships['data'])) {
-                        $subType=$relationships['data']['type'];
-                        $ret[$subType]="SchemaOf$subType";
+                    if (key_exists('data',$relationships)) {
+                        $data=$relationships['data'];
+                        $dataType=gettype($data);
+                        switch ($dataType) {
+                            case 'array':
+                                if (key_exists('type',$data)) {
+                                    $subType=$data['type'];
+                                    $ret[$subType]="SchemaOf$subType";
+                                }
+                            case 'object':
+                                $subType=get_class($data);
+                                $ret[$subType]="SchemaOf$subType";
+                                break;;
+                            default:
+                                echo "Unsupported data structure type $dataType :".print_r($data,true);;
+                        }
                     }
                 }
             }

@@ -3,6 +3,15 @@ namespace responce;
 
 class Responce {
 
+    public static function  sendObjects($json,$headers=[]) {
+        $status='200';
+        http_response_code($status);
+        $headers[]="Content-type: application/vnd.api+json";
+        foreach ($headers as $header) {
+            header($header);
+        }
+        echo $json;
+    }
     public static function  sendCreatedObject($location,$json,$headers=[]) {
         $status='201';
         http_response_code($status);
@@ -17,7 +26,7 @@ class Responce {
 
     public static function sendErrorReply($e,$headers=[]) {
         $status=$e['status'];
-        $status='200';
+//         $status='200';
         http_response_code($status);
         $headers[]="Content-type: application/vnd.api+json";
         foreach ($headers as $header) {

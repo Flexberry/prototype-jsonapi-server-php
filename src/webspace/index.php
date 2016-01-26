@@ -56,26 +56,31 @@ switch ($_SERVER["REQUEST_METHOD"]) {
         $links=[
             Link::SELF => new Link($href, null, true)
         ];
-        echo "Fetch object $request_uri<br>\n";
+//         echo "Fetch object $request_uri<br>\n";
         $parsedRequest=Get::urlParse($request_uri);
         $path=$parsedRequest['path'];
         $query=$parsedRequest['query'];
         $type=ListTypes::getTypeBySubUrl($path['collection']);
         $path['type']=$type;
         $objects=Pdostore::getObjects($path,$query);
-        echo "<pre>Objects=";print_r($objects);echo "</pre>\n";
+//         echo "<pre>Objects=";print_r($objects);echo "</pre>\n";
         $schemas=FJA::formSchemas($objects);
 //        echo "schemas=".print_r($schemas,true);
         if (key_exists('id',$path)) {   // get one object
             $encoder = Encoder::instance($schemas, new EncoderOptions(JSON_PRETTY_PRINT, $baseURL));
-            $json=$encoder->withLinks($links)->encodeData($objects[0]);
-            echo "<pre>JSON=";print_r(json_decode($json,true));echo "</pre>\n";
+            $object=(key_exists(0,$objects)?$objects[0]:null);
+            $json=$encoder->withLinks($links)->encodeData($object);
+//             echo "<pre>JSON=$json</pre>\n";
+//             echo "<pre>PHPJSON=";print_r(json_decode($json,true));echo "</pre>\n";
         } else {    //get collection of objects
             $encoder = Encoder::instance($schemas, new EncoderOptions(JSON_PRETTY_PRINT, null));
 //             echo "encoder=".print_r($encoder,true);
             $json=$encoder->withLinks($links)->encodeData($objects);
-            echo "<pre>JSON=";print_r(json_decode($json,true));echo "</pre>\n";
+//             echo "<pre>PHPJSON=";print_r(json_decode($json,true));echo "</pre>\n";
         }
+        $objectTree=json_decode($json,true);
+        $location=$objectTree['links']['self'];
+        Responce::sendObjects($json);
 
 //         phpinfo();
         break;;

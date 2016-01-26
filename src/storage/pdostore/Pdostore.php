@@ -58,7 +58,7 @@ class Pdostore {
             $driverMessage=(key_exists(2,$errorInfo)?$errorInfo[2]:'');
             $detail="$errorCode/$driverCode: $driverMessage";
             echo $detail;
-            Responce::sendErrorReply(['status'=>'403','title'=>'Object not created, database error','detail'=>$detail]);
+            \responce\Responce::sendErrorReply(['status'=>'403','title'=>'Object not created, database error','detail'=>$detail]);
         }
     //     echo "Inserted $count records\n";
         return $object;    
@@ -71,10 +71,14 @@ class Pdostore {
 //     }
 
     public static function getObjects($path,$query) {
-        echo "getObjects::path=<pre>";print_r($path);echo "</pre>";
-        echo "getObjects::query=<pre>";print_r($query);echo "</pre>";
+        $objects=[];
+//         echo "getObjects::path=<pre>";print_r($path);echo "</pre>";
+//         echo "getObjects::query=<pre>";print_r($query);echo "</pre>";
         $modelClassName=$path['type'];
-        $schemaClassName="$modelClassName";
+        if (!$modelClassName || !class_exists($modelClassName)) {
+            $detail="The collection ".$path['collection']." does not exist";
+            \responce\Responce::sendErrorReply(['status'=>'404','title'=>'The collection does not exist','detail'=>$detail]);            
+        }
         $PrimaryKeyName=$modelClassName::$PrimaryKeyName;
         $fieldList=[$PrimaryKeyName];
 //         echo "type=";print_r($modelClassName);
@@ -92,30 +96,44 @@ class Pdostore {
         if (key_exists('id',$path)) {   //Get Object By Id
             $fetchtCmd.= "WHERE \"". $PrimaryKeyName . "\" = '" . $path['id'] . "'";
         }
-        echo "fetchtCmd=$fetchtCmd<br>\n";
+//         echo "fetchtCmd=$fetchtCmd<br>\n";
         $dbh=self::connectDb();
 //         echo "DBH=".print_r($dbh,true);
         $reply = $dbh->query($fetchtCmd);
-        if (($errorCode=intval($dbh->errorCode()))>0) {
-            $errorInfo=$dbh->errorInfo();
-            $driverCode=(key_exists(1,$errorInfo)?$errorInfo[1]:'');
-            $driverMessage=(key_exists(2,$errorInfo)?$errorInfo[2]:'');
-            $detail="$errorCode/$driverCode: $driverMessage";
-            echo $detail;
-            Responce::sendErrorReply(['status'=>'403','title'=>'Objects are not available','detail'=>$detail]);
+        $ErrorCode=$dbh->errorCode();
+        $errorCode=intval($ErrorCode);
+//         echo "ERRORCODE=$errorCode<br>\n";
+        if ($errorCode>0) {
+            switch ($ErrorCode) {  
+                case '22P02':   //Неверный синтаксис UUID
+                    return [];  //Корректная ситуация 
+                break;
+                default:
+                    $errorInfo=$dbh->errorInfo();
+                    $driverCode=(key_exists(1,$errorInfo)?$errorInfo[1]:'');
+                    $driverMessage=(key_exists(2,$errorInfo)?$errorInfo[2]:'');
+                    $detail="$errorCode/$driverCode: $driverMessage";
+//                     echo "$errorCode=". $dbh->errorCode() . " errorInfo=". print_r($errorInfo,true) . "<br>\n";
+                    \responce\Responce::sendErrorReply(['status'=>'403','title'=>'Objects are not available','detail'=>$detail]);
+            }
         }
-//         $schema=new $schemaClassName();
-        $objects=[];
         foreach ($reply as $row) {
 //             echo "ROW=";print_r($row);echo "<br>\n";
             $attibutes=[];
             foreach ($attributeList as $attributeName) {
                 $attibutes[$attributeName]=$row[$attributeName];
             }
-            foreach ($relationshipList as $relationships) {
-                
+            $relationships=[];
+            foreach ($relationshipList as $relationName) {
+                $relationId=$row[$relationName];
+                if ($relationId) {
+                    $relationClassName=$modelClassName::getTypeByRelationName($relationName);
+                    $relationObject=new $relationClassName($relationId);
+                    $relationships[$relationName]=['data'=>$relationObject,'type'=>$relationClassName];
+                }
             }
-            $object=new $modelClassName($row[$PrimaryKeyName],$attibutes,[]);
+//             echo "relationships=";print_r($relationships);
+            $object=new $modelClassName($row[$PrimaryKeyName],$attibutes,$relationships);
             $objects[]=$object;
         }
         return $objects;

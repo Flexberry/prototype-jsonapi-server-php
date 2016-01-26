@@ -39,5 +39,10 @@ class Model {
         $ret=array_keys(static::$relationshipList);
         return $ret;
     }
+    
+    public static function getTypeByRelationName($name) {
+        $ret=(key_exists($name,static::$relationshipList)?static::$relationshipList[$name]:'');
+        return $ret;
+    }
 
 }
