@@ -12,10 +12,10 @@ class Model {
     public function __construct($id=null,$attributes=[],$relationships=[]) {
         $this->primaryKeyName=static::$PrimaryKeyName;
         $this->attrTypes=static::$AttrTypes;
-        if ($id) {
-            $attributes[$this->primaryKeyName]=$id;
-        }
         $this->attributes=$attributes;
+        if ($id) {
+            $this->attributes[$this->primaryKeyName]=$id;
+        }
         $this->relationships=$relationships;
     }
     

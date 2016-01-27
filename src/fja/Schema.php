@@ -11,7 +11,7 @@ class Schema extends \Neomerx\JsonApi\Schema\SchemaProvider
         $this->resourceType = static::$ResourceType;
         $this->selfSubUrl  = static::$SelfSubUrl;
         $this->isShowAttributesInIncluded = static::$IsShowSelfInIncluded;
-        echo "Schema=";print_r($this);
+//         echo "Schema=";print_r($this);
         parent::__construct($factory,$container);
     }    
 

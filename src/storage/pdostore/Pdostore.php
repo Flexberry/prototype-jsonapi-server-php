@@ -129,7 +129,8 @@ class Pdostore {
                 if ($relationId) {
                     $relationClassName=$modelClassName::getTypeByRelationName($relationName);
                     $relationObject=new $relationClassName($relationId);
-                    $relationships[$relationName]=['data'=>$relationObject,'related'=>true,'showSelf'=>true,'showData'=>false];
+//                     $relationships[$relationName]=['data'=>$relationObject];
+                    $relationships[$relationName]=['data'=>$relationObject,'related'=>true,'showSelf'=>true,'showData'=>true];
                 }
             }
 //             echo "relationships=";print_r($relationships);

@@ -10,7 +10,7 @@ class SchemaOfМедведь extends Schema
 
     
     public function getIncludePaths() {
-        return ['Папа','Мама','Лес'];
+        return ['Папа','Мама','ЛесОбитания'];
     }
     
 }
