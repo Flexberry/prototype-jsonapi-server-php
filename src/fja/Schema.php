@@ -10,7 +10,8 @@ class Schema extends \Neomerx\JsonApi\Schema\SchemaProvider
     function __construct($factory,$container) {
         $this->resourceType = static::$ResourceType;
         $this->selfSubUrl  = static::$SelfSubUrl;
-        $this->isShowSelfInIncluded = static::$IsShowSelfInIncluded;
+        $this->isShowAttributesInIncluded = static::$IsShowSelfInIncluded;
+        echo "Schema=";print_r($this);
         parent::__construct($factory,$container);
     }    
 

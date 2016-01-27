@@ -9,8 +9,8 @@ class SchemaOfМедведь extends Schema
     public static $IsShowSelfInIncluded=true;
 
     
-//     public function getIncludePaths() {
-//         return ['Папа','Мама'];
-//     }
+    public function getIncludePaths() {
+        return ['Папа','Мама','Лес'];
+    }
     
 }

@@ -101,6 +101,8 @@ switch ($_SERVER["REQUEST_METHOD"]) {
                     $object=(key_exists(0,$objects)?$objects[0]:null);
                 }
             }
+            echo "<pre>OBJECT=";print_r($object);echo "</pre>\n";
+            
             $schemas=FJA::formSchemas($objects);
             $encoder = Encoder::instance($schemas, new EncoderOptions(JSON_PRETTY_PRINT, $baseURL));
             $json=$encoder->withLinks($links)->encodeData($object);

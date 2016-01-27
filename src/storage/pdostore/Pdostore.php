@@ -129,11 +129,13 @@ class Pdostore {
                 if ($relationId) {
                     $relationClassName=$modelClassName::getTypeByRelationName($relationName);
                     $relationObject=new $relationClassName($relationId);
-                    $relationships[$relationName]=['data'=>$relationObject,'type'=>$relationClassName];
+                    $relationships[$relationName]=['data'=>$relationObject,'related'=>true,'showSelf'=>true,'showData'=>false];
                 }
             }
 //             echo "relationships=";print_r($relationships);
             $object=new $modelClassName($row[$PrimaryKeyName],$attibutes,$relationships);
+
+ 
             $objects[]=$object;
         }
         return $objects;
