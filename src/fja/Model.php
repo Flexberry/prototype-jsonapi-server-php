@@ -19,7 +19,10 @@ class Model {
         $this->relationships=$relationships;
     }
     
-
+    public static function instance($id=null,$attributes=[],$relationships=[]) {
+        return new static($id,$attributes,$relationships);
+    }
+    
     public function isBoolean($attrName) {
         $attrType=@$this->attrTypes[$attrName];
         $ret=($attrType=='boolean');

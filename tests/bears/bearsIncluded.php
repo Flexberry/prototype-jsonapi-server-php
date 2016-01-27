@@ -27,7 +27,12 @@ $baseURL="$baseHost";
 \fja\FJA::setDomain($domain);
 
 spl_autoload_register(['\fja\FJA', 'autoload'], true, true);
-
+$страна1= Страна::instance(
+    'bel',
+    [
+        'Название'=>'Белоруссия',
+    ]
+    );
 
 $ЛесОбитания1= new Лес(
     "forest1",
@@ -36,6 +41,9 @@ $ЛесОбитания1= new Лес(
         'Площадь'=>222,
         'Заповедник'=>false,
         'ДатаПоследнегоОсмотра'=>'2010/05/05'
+    ],
+    [
+        'Страна' => ['data' => $страна1],
     ]
     );
 
@@ -84,14 +92,26 @@ $медведь3= new \Медведь(
     );
 
     
-echo "медведь3=";print_r($медведь3);
+// echo "медведь3=";print_r($медведь3);
+
+$includePaths=['Папа','ЛесОбитания','ЛесОбитания.Страна'];
+//$includePaths=[];
+$fieldSets=['Медведь'=>['Вес','ПорядковыйНомер','Папа','ЛесОбитания'],'Лес'=>['Название','Площадь','Страна'],'Страна'=>['Название']];
+$fieldSets=[];
+$encodingParameters = new \Neomerx\JsonApi\Parameters\EncodingParameters($includePaths,$fieldSets);
+echo "<pre>encodingParameters=";print_r($encodingParameters);echo "</pre>\n";
 
 $encoder = \Neomerx\JsonApi\Encoder\Encoder::instance([
-    'Медведь' => 'SchemaOfМедведь',
-    'Лес' => 'SchemaOfЛес',
+    'Медведь' => '\SchemaOfМедведь',
+    'Лес' => '\SchemaOfЛес',
+    'Страна' => '\SchemaOfСтрана',
+    'Берлога' => '\SchemaOfБерлога',
+    'Блоха' => '\SchemaOfБлоха',
 ], new \Neomerx\JsonApi\Encoder\EncoderOptions(JSON_PRETTY_PRINT, $baseURL));
+// echo "<pre>Encoder=";print_r($encoder);echo "</pre>\n";
 
-$json=$encoder->encodeData($медведь3);
+$json=$encoder->encodeData($медведь3,$encodingParameters);
+
 echo "<pre>JSON=$json</pre>\n";
 echo "<pre>PHP=";print_r(json_decode($json,true));echo "</pre>\n";
 
