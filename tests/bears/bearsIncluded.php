@@ -43,7 +43,7 @@ $ЛесОбитания1= new Лес(
         'ДатаПоследнегоОсмотра'=>'2010/05/05'
     ],
     [
-        'Страна' => ['data' => $страна1],
+        'Страна' => ['data' => $страна1,'related'=>true,'showSelf'=>true,'showData'=>true],
     ]
     );
 
@@ -86,16 +86,17 @@ $медведь3= new \Медведь(
     ],
     [
         'ЛесОбитания' => ['data' => $ЛесОбитания1,'related'=>true,'showSelf'=>true,'showData'=>true],
-        'Папа' => ['data' =>  $медведь1 ,'related'=>true,'showSelf'=>true,'showData'=>false],
+        'Папа' => ['data' =>  $медведь1 ,'related'=>true,'showSelf'=>true,'showData'=>true],
         'Мама' => ['data' =>  $медведь2 ,'related'=>true,'showSelf'=>true,'showData'=>false],
     ]
     );
 
     
+echo "страна1=";print_r($страна1);
 // echo "медведь3=";print_r($медведь3);
 
 $includePaths=['Папа','ЛесОбитания','ЛесОбитания.Страна'];
-$includePaths=[];
+// $includePaths=[];
 $fieldSets=['Медведь'=>['Вес','ПорядковыйНомер','Папа','ЛесОбитания'],'Лес'=>['Название','Площадь','Страна'],'Страна'=>['Название']];
 $fieldSets=[];
 $encodingParameters = new \Neomerx\JsonApi\Parameters\EncodingParameters($includePaths,$fieldSets);
@@ -110,6 +111,7 @@ $encoder = \Neomerx\JsonApi\Encoder\Encoder::instance([
 ], new \Neomerx\JsonApi\Encoder\EncoderOptions(JSON_PRETTY_PRINT, $baseURL));
 echo "<pre>Encoder=";print_r($encoder);echo "</pre>\n";
 
+//$json=$encoder->encodeData($ЛесОбитания1,$encodingParameters);
 $json=$encoder->encodeData($медведь3,$encodingParameters);
 
 echo "<pre>JSON=$json</pre>\n";

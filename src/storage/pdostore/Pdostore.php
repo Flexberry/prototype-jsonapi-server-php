@@ -1,10 +1,13 @@
 <?php 
 use \responce\Responce;
+use \request\get\Get;
+
 namespace storage\pdostore;
 
 class Pdostore {
 
     static $selectedObjects=[];
+    static $includePaths=[];
 
     public static function connectDb() {
         $dsn = 'pgsql:host=10.130.5.119;port=5432;dbname=JsonApiTest;';
@@ -77,16 +80,14 @@ class Pdostore {
             $detail="The collection ".$path['collection']." does not exist";
             \responce\Responce::sendErrorReply(['status'=>'404','title'=>'The collection does not exist','detail'=>$detail]);            
         }
-        $objects=self::selectObjects($modelClassName,$id,$query);
+        self::$includePaths=(key_exists('include',$query)?$query['include']:false);
+        $objects=self::selectObjects($modelClassName,$id,'');
         return $objects;
     }
         
-    private static function selectObjects($modelClassName,$id,$query) {
+    private static function selectObjects($modelClassName,$id,$relNamePath) {
         $objects=[];
-        $includePaths=(key_exists('include',$query)?$query['include']:false);
-//         echo "selectObjects:: modelClassName=$modelClassName id=$id </pre>";
-//         echo "selectObjects::query=<pre>";print_r($query);echo "</pre>";
-//         echo "selectObjects::includePaths=<pre>";print_r($includePaths);echo "</pre>";
+//         echo "\n\n---------------\nselectObjects:: modelClassName=$modelClassName id=$id  relNamePath=$relNamePath\n";
         $PrimaryKeyName=$modelClassName::$PrimaryKeyName;
         $fieldList=[$PrimaryKeyName];
 //         echo "type=";print_r($modelClassName);
@@ -132,19 +133,23 @@ class Pdostore {
                 $attibutes[$attributeName]=$row[$attributeName];
             }
             $id=$row[$PrimaryKeyName];
+//             echo "\nmodelClassName=$modelClassName id=$id selectedObjects=";print_r(self::$selectedObjects);echo "\n";
             if (key_exists($modelClassName,self::$selectedObjects) && key_exists($id,self::$selectedObjects[$modelClassName])) {
+//                 echo "Object $modelClassName/$id exist\n";
                 $object=self::$selectedObjects[$modelClassName][$id];
             } else {
                 $object=new $modelClassName($id,$attibutes,[]);
                 self::$selectedObjects[$modelClassName][$id]=$object;
+//                 echo "After adding: selectedObjects=";print_r(self::$selectedObjects);echo "\n";
                 $relationships=[];
                 foreach ($relationshipList as $relationName) {
                     $relationId=$row[$relationName];
                     if ($relationId) {
                         $relationClassName=$modelClassName::getTypeByRelationName($relationName);
-    //                     $relationships[$relationName]=['data'=>$relationObject];
-                        if (is_array($includePaths)) {
-                            if (in_array($relationName,$includePaths)) {
+                        if (is_array(self::$includePaths)) {
+                            $fullRelationName="$relNamePath$relationName";
+//                             echo "fullRelationName=$fullRelationName\n";
+                            if (in_array($fullRelationName,self::$includePaths)) {
                                 $related=true;
                                 $showSelf=true;
                                 $showData=true;
@@ -160,9 +165,11 @@ class Pdostore {
                         }
                         if ($showData) {
                             if (key_exists($relationClassName,self::$selectedObjects) && key_exists($relationId,self::$selectedObjects[$relationClassName])) {
+//                                 echo "RelationObject $relationClassName/$relationId exist\n";
                                 $relationObject=self::$selectedObjects[$relationClassName][$relationId];
                             } else {
-                                $relationObjects=self::selectObjects($relationClassName,$relationId,$query);
+                                $subRelNamePath=($relNamePath?"$relNamePath$relationName.":"$relationName.");
+                                $relationObjects=self::selectObjects($relationClassName,$relationId,$subRelNamePath);
                                 $relationObject=$relationObjects[0];
                                 self::$selectedObjects[$relationClassName][$relationId]=$relationObject;
         //                         echo "$relationClassName/$relationId relationObject=";print_r($relationObject);

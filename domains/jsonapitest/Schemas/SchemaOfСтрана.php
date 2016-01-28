@@ -4,6 +4,6 @@ class SchemaOfСтрана extends Schema {
 
     public static $ResourceType='Страна';
     public static $SelfSubUrl='/Страны/';
-    public static $IsShowSelfInIncluded=false;
+    public static $IsShowSelfInIncluded=true;
 
 }

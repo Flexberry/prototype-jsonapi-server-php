@@ -54,13 +54,14 @@ switch ($_SERVER["REQUEST_METHOD"]) {
         Responce::sendCreatedObject($location,$json);
         break;;
     case 'GET':    //Запрос объектов
-        $links=[
-            Link::SELF => new Link($href, null, true)
-        ];
 //         echo "Fetch object $request_uri<br>\n";
         $parsedRequest=Get::urlParse($request_uri);
         $path=$parsedRequest['path'];
         $query=$parsedRequest['query'];
+//         echo "parsedRequest=";print_r($parsedRequest);
+        $links=[
+            Link::SELF => new Link($parsedRequest['location'], null, true)
+        ];
         $type=ListTypes::getTypeBySubUrl($path['collection']);
         $path['type']=$type;
         if (key_exists('id',$path)) {   // get one object
