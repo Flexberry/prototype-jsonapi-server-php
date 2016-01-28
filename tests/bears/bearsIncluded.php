@@ -98,7 +98,7 @@ echo "страна1=";print_r($страна1);
 $includePaths=['Папа','ЛесОбитания','ЛесОбитания.Страна'];
 // $includePaths=[];
 $fieldSets=['Медведь'=>['Вес','ПорядковыйНомер','Папа','ЛесОбитания'],'Лес'=>['Название','Площадь','Страна'],'Страна'=>['Название']];
-$fieldSets=[];
+// $fieldSets=[];
 $encodingParameters = new \Neomerx\JsonApi\Parameters\EncodingParameters($includePaths,$fieldSets);
 echo "<pre>encodingParameters=";print_r($encodingParameters);echo "</pre>\n";
 

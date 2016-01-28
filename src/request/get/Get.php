@@ -26,6 +26,7 @@ class Get {
             
         }
         parse_str($query,$Query);
+//         echo "Query=";print_r($Query);
         $retQuery=[];
         if (key_exists('include',$Query)) {
 //             echo "Before Include=".$Query['include']."\n";
@@ -42,6 +43,13 @@ class Get {
             $retQuery['include']=$include;
 //             echo "After Include=";print_r($include);
         }
+        $fields=[];
+        if (key_exists('fields',$Query) && is_array($Query['fields'])) {
+            foreach ($Query['fields'] as $type=>$fieldList) {
+                $fields[$type]=explode(',',$fieldList);
+            }
+        }
+        $retQuery['fields']=$fields;
         $ret=['path'=>$retPath,'query'=>$retQuery,'location'=>"/$location"];
         return $ret;       
     }

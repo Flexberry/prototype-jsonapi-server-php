@@ -56,9 +56,9 @@ switch ($_SERVER["REQUEST_METHOD"]) {
     case 'GET':    //Запрос объектов
 //         echo "Fetch object $request_uri<br>\n";
         $parsedRequest=Get::urlParse($request_uri);
+//         echo "parsedRequest=";print_r($parsedRequest);
         $path=$parsedRequest['path'];
         $query=$parsedRequest['query'];
-//         echo "parsedRequest=";print_r($parsedRequest);
         $links=[
             Link::SELF => new Link($parsedRequest['location'], null, true)
         ];
@@ -119,7 +119,8 @@ switch ($_SERVER["REQUEST_METHOD"]) {
         $schemas=FJA::formSchemas($listObjects);
 //         echo "schemas=";print_r($schemas);
         $includePaths=(key_exists('include',$query)?$query['include']:[]);
-        $fieldSets=[];
+        $fieldSets=$query['fields'];
+//         echo "fieldSets=";print_r($fieldSets);
         $encodingParameters = new EncodingParameters($includePaths,$fieldSets);
 
         $encoder = Encoder::instance($schemas, new EncoderOptions(JSON_PRETTY_PRINT, null));
