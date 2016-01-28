@@ -8,6 +8,7 @@ class Pdostore {
 
     static $selectedObjects=[];
     static $includePaths=[];
+    static $sort;
 
     public static function connectDb() {
         $dsn = 'pgsql:host=10.130.5.119;port=5432;dbname=JsonApiTest;';
@@ -81,6 +82,7 @@ class Pdostore {
             \responce\Responce::sendErrorReply(['status'=>'404','title'=>'The collection does not exist','detail'=>$detail]);            
         }
         self::$includePaths=(key_exists('include',$query)?$query['include']:false);
+        self::$sort=(key_exists('sort',$query)?$query['sort']:false);
         $objects=self::selectObjects($modelClassName,$id,'');
         return $objects;
     }
@@ -104,6 +106,15 @@ class Pdostore {
         $fetchtCmd='SELECT ' . implode(',',$FieldList) . " FROM \"public\".\"$modelClassName\""; 
         if ($id!==null) {   //Get Object By Id
             $fetchtCmd.= " WHERE \"". $PrimaryKeyName . "\" = '" . $id . "'";
+        }
+//         echo "SORT=";print_r(self::$sort);
+//         echo "lenOf relNamePath=".strlen($relNamePath)."\n";
+        if (is_array(self::$sort) && strlen($relNamePath)==0) { //Sorting on top level
+            $Sort=[];
+            foreach (self::$sort as $fieldDesc) {
+                $Sort[]=$fieldDesc['field'] . ' ' . ($fieldDesc['asc']?'ASC':'DESC');
+            }
+            $fetchtCmd.=" ORDER BY " .  implode(',',$Sort);
         }
 //         echo "fetchtCmd=$fetchtCmd<br>\n";
         $dbh=self::connectDb();

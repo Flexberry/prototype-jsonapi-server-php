@@ -50,6 +50,18 @@ class Get {
             }
         }
         $retQuery['fields']=$fields;
+        
+        if (key_exists('sort',$Query)) {
+            $sort=[];
+            foreach (explode(',',$Query['sort']) as $sortField) {
+                if (substr($sortField,0,1)=='-') {
+                    $sort[]=['field'=>substr($sortField,1),'asc'=>false];
+                } else {
+                    $sort[]=['field'=>$sortField,'asc'=>true];
+                }
+            }
+            $retQuery['sort']=$sort;
+        }
         $ret=['path'=>$retPath,'query'=>$retQuery,'location'=>"/$location"];
         return $ret;       
     }
