@@ -33,6 +33,10 @@ class Model {
         $this->attributes[$this->primaryKeyName]=$id;
     }
     
+    public function setRelationships($relationships) {
+        $this->relationships=$relationships;
+    }
+    
     public static function getAttributeList() {
         $ret=array_keys(static::$AttrTypes);
         return $ret;

@@ -4,6 +4,8 @@ namespace storage\pdostore;
 
 class Pdostore {
 
+    static $selectedObjects=[];
+
     public static function connectDb() {
         $dsn = 'pgsql:host=10.130.5.119;port=5432;dbname=JsonApiTest;';
         $user = 'flexberry_orm_tester';
@@ -100,7 +102,7 @@ class Pdostore {
         }
         $fetchtCmd='SELECT ' . implode(',',$FieldList) . " FROM \"public\".\"$modelClassName\""; 
         if ($id!==null) {   //Get Object By Id
-            $fetchtCmd.= "WHERE \"". $PrimaryKeyName . "\" = '" . $id . "'";
+            $fetchtCmd.= " WHERE \"". $PrimaryKeyName . "\" = '" . $id . "'";
         }
 //         echo "fetchtCmd=$fetchtCmd<br>\n";
         $dbh=self::connectDb();
@@ -129,39 +131,52 @@ class Pdostore {
             foreach ($attributeList as $attributeName) {
                 $attibutes[$attributeName]=$row[$attributeName];
             }
-            $relationships=[];
-            foreach ($relationshipList as $relationName) {
-                $relationId=$row[$relationName];
-                if ($relationId) {
-                    $relationClassName=$modelClassName::getTypeByRelationName($relationName);
-//                     $relationships[$relationName]=['data'=>$relationObject];
-                    if (is_array($includePaths)) {
-                        if (in_array($relationName,$includePaths)) {
-                            $related=true;
-                            $showSelf=true;
-                            $showData=true;
-                            } else {
+            $id=$row[$PrimaryKeyName];
+            if (key_exists($modelClassName,self::$selectedObjects) && key_exists($id,self::$selectedObjects[$modelClassName])) {
+                $object=self::$selectedObjects[$modelClassName][$id];
+            } else {
+                $object=new $modelClassName($id,$attibutes,[]);
+                self::$selectedObjects[$modelClassName][$id]=$object;
+                $relationships=[];
+                foreach ($relationshipList as $relationName) {
+                    $relationId=$row[$relationName];
+                    if ($relationId) {
+                        $relationClassName=$modelClassName::getTypeByRelationName($relationName);
+    //                     $relationships[$relationName]=['data'=>$relationObject];
+                        if (is_array($includePaths)) {
+                            if (in_array($relationName,$includePaths)) {
+                                $related=true;
+                                $showSelf=true;
+                                $showData=true;
+                                } else {
+                                $related=true;
+                                $showSelf=true;
+                                $showData=false;
+                            }
+                        } else {
                             $related=true;
                             $showSelf=true;
                             $showData=false;
                         }
-                    } else {
-                        $related=true;
-                        $showSelf=true;
-                        $showData=false;
+                        if ($showData) {
+                            if (key_exists($relationClassName,self::$selectedObjects) && key_exists($relationId,self::$selectedObjects[$relationClassName])) {
+                                $relationObject=self::$selectedObjects[$relationClassName][$relationId];
+                            } else {
+                                $relationObjects=self::selectObjects($relationClassName,$relationId,$query);
+                                $relationObject=$relationObjects[0];
+                                self::$selectedObjects[$relationClassName][$relationId]=$relationObject;
+        //                         echo "$relationClassName/$relationId relationObject=";print_r($relationObject);
+                            }
+                        } else {
+                            $relationObject=new $relationClassName($relationId);
+                        }
+                        $relationships[$relationName]=['data'=>$relationObject,'related'=>$related,'showSelf'=>$showSelf,'showData'=>$showData];
                     }
-                    if ($showData) {
-                        $relationObjects=self::selectObjects($relationClassName,$relationId,$query);
-                        $relationObject=$relationObjects[0];
-//                         echo "$relationClassName/$relationId relationObject=";print_r($relationObject);
-                    } else {
-                        $relationObject=new $relationClassName($relationId);
-                    }
-                    $relationships[$relationName]=['data'=>$relationObject,'related'=>$related,'showSelf'=>$showSelf,'showData'=>$showData];
                 }
+    //             echo "relationships=";print_r($relationships);
+                $object->setRelationships($relationships);
+//             $object=new $modelClassName($row[$PrimaryKeyName],$attibutes,$relationships);
             }
-//             echo "relationships=";print_r($relationships);
-            $object=new $modelClassName($row[$PrimaryKeyName],$attibutes,$relationships);
             $objects[]=$object;
         }
         return $objects;
