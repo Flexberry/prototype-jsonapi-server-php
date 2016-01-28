@@ -2,6 +2,7 @@
 use \fja\FJA;
 use \Neomerx\JsonApi\Encoder\Encoder;
 use \Neomerx\JsonApi\Encoder\EncoderOptions;
+use \Neomerx\JsonApi\Parameters\EncodingParameters;
 use \Neomerx\JsonApi\Schema\Link;
 
 use \request\post\Post;
@@ -62,12 +63,11 @@ switch ($_SERVER["REQUEST_METHOD"]) {
         $query=$parsedRequest['query'];
         $type=ListTypes::getTypeBySubUrl($path['collection']);
         $path['type']=$type;
-//         $objects=Pdostore::getObjects($path,$query);
         if (key_exists('id',$path)) {   // get one object
             $id=$path['id'];
             $objects=Pdostore::getObjects($type,$id,$query);
             $object=(key_exists(0,$objects)?$objects[0]:null);
-            if ($object && key_exists('related',$path)) {   //Get related object
+            if ($object && key_exists('related',$path)) {   //Get related object: /articles/1/tags,  /articles/1/tags/...
 //                 echo "<pre>object=";print_r($object);echo "</pre>";
                 $related=$path['related'];
 //                 echo "<pre>PATH=";print_r($path);echo "</pre>";
@@ -102,20 +102,30 @@ switch ($_SERVER["REQUEST_METHOD"]) {
                 }
             }
 //             echo "<pre>OBJECT=";print_r($object);echo "</pre>\n";
-            
-            $schemas=FJA::formSchemas($objects);
-            $encoder = Encoder::instance($schemas, new EncoderOptions(JSON_PRETTY_PRINT, $baseURL));
-            $json=$encoder->withLinks($links)->encodeData($object);
-//             echo "<pre>JSON=$json</pre>\n";
-//             echo "<pre>PHPJSON=";print_r(json_decode($json,true));echo "</pre>\n";
+            $listObjects=$objects;  //List Objects for schema generations
+            $encodedObject=$objects;    // encoded Object
+//             $schemas=FJA::formSchemas($objects);
+//             $encoder = Encoder::instance($schemas, new EncoderOptions(JSON_PRETTY_PRINT, $baseURL));
+//             $json=$encoder->withLinks($links)->encodeData($object);
+// //             echo "<pre>JSON=$json</pre>\n";
+// //             echo "<pre>PHPJSON=";print_r(json_decode($json,true));echo "</pre>\n";
         } else {    //get collection of objects
             $objects=Pdostore::getObjects($type,null,$query);
-            $schemas=FJA::formSchemas($objects);
-            $encoder = Encoder::instance($schemas, new EncoderOptions(JSON_PRETTY_PRINT, null));
-//             echo "encoder=".print_r($encoder,true);
-            $json=$encoder->withLinks($links)->encodeData($objects);
-//             echo "<pre>PHPJSON=";print_r(json_decode($json,true));echo "</pre>\n";
+            $listObjects=$objects;  //List Objects for schema generations
+            $encodedObject=$objects;    // encoded Object
         }
+//         echo "LISTOBJECTS=";print_r($listObjects);
+        $schemas=FJA::formSchemas($listObjects);
+//         echo "schemas=";print_r($schemas);
+        $includePaths=(key_exists('include',$query)?$query['include']:[]);
+        $fieldSets=[];
+        $encodingParameters = new EncodingParameters($includePaths,$fieldSets);
+
+        $encoder = Encoder::instance($schemas, new EncoderOptions(JSON_PRETTY_PRINT, null));
+//             echo "encoder=".print_r($encoder,true);
+        $json=$encoder->withLinks($links)->encodeData($encodedObject,$encodingParameters);
+//             echo "<pre>PHPJSON=";print_r(json_decode($json,true));echo "</pre>\n";
+        
         $objectTree=json_decode($json,true);
         $location=$objectTree['links']['self'];
         Responce::sendObjects($json);

@@ -70,15 +70,21 @@ class Pdostore {
 //         
 //     }
 
-    public static function getObjects($type,$id,$query) {
-//         echo "getObjects:: type=$type id=$id </pre>";
-//         echo "getObjects::query=<pre>";print_r($query);echo "</pre>";
-        $objects=[];
-        $modelClassName=$type;
+    public static function getObjects($modelClassName,$id,$query) {
         if (!$modelClassName || !class_exists($modelClassName)) {
             $detail="The collection ".$path['collection']." does not exist";
             \responce\Responce::sendErrorReply(['status'=>'404','title'=>'The collection does not exist','detail'=>$detail]);            
         }
+        $objects=self::selectObjects($modelClassName,$id,$query);
+        return $objects;
+    }
+        
+    private static function selectObjects($modelClassName,$id,$query) {
+        $objects=[];
+        $includePaths=(key_exists('include',$query)?$query['include']:false);
+//         echo "selectObjects:: modelClassName=$modelClassName id=$id </pre>";
+//         echo "selectObjects::query=<pre>";print_r($query);echo "</pre>";
+//         echo "selectObjects::includePaths=<pre>";print_r($includePaths);echo "</pre>";
         $PrimaryKeyName=$modelClassName::$PrimaryKeyName;
         $fieldList=[$PrimaryKeyName];
 //         echo "type=";print_r($modelClassName);
@@ -128,15 +134,34 @@ class Pdostore {
                 $relationId=$row[$relationName];
                 if ($relationId) {
                     $relationClassName=$modelClassName::getTypeByRelationName($relationName);
-                    $relationObject=new $relationClassName($relationId);
 //                     $relationships[$relationName]=['data'=>$relationObject];
-                    $relationships[$relationName]=['data'=>$relationObject,'related'=>true,'showSelf'=>true,'showData'=>true];
+                    if (is_array($includePaths)) {
+                        if (in_array($relationName,$includePaths)) {
+                            $related=true;
+                            $showSelf=true;
+                            $showData=true;
+                            } else {
+                            $related=true;
+                            $showSelf=true;
+                            $showData=false;
+                        }
+                    } else {
+                        $related=true;
+                        $showSelf=true;
+                        $showData=false;
+                    }
+                    if ($showData) {
+                        $relationObjects=self::selectObjects($relationClassName,$relationId,$query);
+                        $relationObject=$relationObjects[0];
+//                         echo "$relationClassName/$relationId relationObject=";print_r($relationObject);
+                    } else {
+                        $relationObject=new $relationClassName($relationId);
+                    }
+                    $relationships[$relationName]=['data'=>$relationObject,'related'=>$related,'showSelf'=>$showSelf,'showData'=>$showData];
                 }
             }
 //             echo "relationships=";print_r($relationships);
             $object=new $modelClassName($row[$PrimaryKeyName],$attibutes,$relationships);
-
- 
             $objects[]=$object;
         }
         return $objects;

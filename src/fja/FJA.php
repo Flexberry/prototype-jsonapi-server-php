@@ -128,10 +128,11 @@ class FJA {
             $type=get_class($object);
             $ret[$type]="SchemaOf$type";
             if (isset($object->relationships) && is_Array($object->relationships)) {
-                foreach ($object->relationships as $relationships) {
-                    if (key_exists('data',$relationships)) {
-                        $data=$relationships['data'];
+                foreach ($object->relationships as $relName=>$relationship) {
+                    if (key_exists('data',$relationship)) {
+                        $data=$relationship['data'];
                         $dataType=gettype($data);
+//                         echo "relName=$relName dataType=$dataType\n";
                         switch ($dataType) {
                             case 'array':
                                 if (key_exists('type',$data)) {
@@ -139,8 +140,9 @@ class FJA {
                                     $ret[$subType]="SchemaOf$subType";
                                 }
                             case 'object':
-                                $subType=get_class($data);
-                                $ret[$subType]="SchemaOf$subType";
+                                $subTypes=self::formSchemas([$data]);
+//                                 echo "subTypes=";print_r($subTypes);
+                                $ret=array_merge($ret,$subTypes);
                                 break;;
                             default:
                                 echo "Unsupported data structure type $dataType :".print_r($data,true);;

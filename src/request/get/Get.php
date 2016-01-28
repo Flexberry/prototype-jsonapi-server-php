@@ -25,10 +25,13 @@ class Get {
             }
             
         }
-        parse_str($query,$retQuery);
+        parse_str($query,$Query);
+        $retQuery=[];
+        if (key_exists('include',$Query)) {
+            $retQuery['include']=explode(',',$Query['include']);
+        }
         $ret=['path'=>$retPath,'query'=>$retQuery];
-        return $ret;
-        
+        return $ret;       
     }
 
 }

@@ -85,9 +85,9 @@ $медведь3= new \Медведь(
         'ДатаРождения'=>'2012/12/15'
     ],
     [
-        'ЛесОбитания' => ['data' => $ЛесОбитания1],
-        'Папа' => ['data' =>  $медведь1 ],
-        'Мама' => ['data' =>  $медведь2 ],
+        'ЛесОбитания' => ['data' => $ЛесОбитания1,'related'=>true,'showSelf'=>true,'showData'=>true],
+        'Папа' => ['data' =>  $медведь1 ,'related'=>true,'showSelf'=>true,'showData'=>false],
+        'Мама' => ['data' =>  $медведь2 ,'related'=>true,'showSelf'=>true,'showData'=>false],
     ]
     );
 
@@ -95,7 +95,7 @@ $медведь3= new \Медведь(
 // echo "медведь3=";print_r($медведь3);
 
 $includePaths=['Папа','ЛесОбитания','ЛесОбитания.Страна'];
-//$includePaths=[];
+$includePaths=[];
 $fieldSets=['Медведь'=>['Вес','ПорядковыйНомер','Папа','ЛесОбитания'],'Лес'=>['Название','Площадь','Страна'],'Страна'=>['Название']];
 $fieldSets=[];
 $encodingParameters = new \Neomerx\JsonApi\Parameters\EncodingParameters($includePaths,$fieldSets);
@@ -108,7 +108,7 @@ $encoder = \Neomerx\JsonApi\Encoder\Encoder::instance([
     'Берлога' => '\SchemaOfБерлога',
     'Блоха' => '\SchemaOfБлоха',
 ], new \Neomerx\JsonApi\Encoder\EncoderOptions(JSON_PRETTY_PRINT, $baseURL));
-// echo "<pre>Encoder=";print_r($encoder);echo "</pre>\n";
+echo "<pre>Encoder=";print_r($encoder);echo "</pre>\n";
 
 $json=$encoder->encodeData($медведь3,$encodingParameters);
 
