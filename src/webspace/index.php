@@ -59,9 +59,6 @@ switch ($_SERVER["REQUEST_METHOD"]) {
 //         echo "parsedRequest=";print_r($parsedRequest);
         $path=$parsedRequest['path'];
         $query=$parsedRequest['query'];
-        $links=[
-            Link::SELF => new Link($parsedRequest['location'], null, true)
-        ];
         $type=ListTypes::getTypeBySubUrl($path['collection']);
         $path['type']=$type;
         if (key_exists('id',$path)) {   // get one object
@@ -145,6 +142,36 @@ switch ($_SERVER["REQUEST_METHOD"]) {
         } else {
             $includePaths=[];
         }
+        $links=[];
+        $self=$parsedRequest['location'];
+        if (key_exists('page',$query)) {
+            $page=$query['page'];
+            $number=(key_exists('number',$page)?$page['number']:1);
+            $size=(key_exists('size',$page)?$page['size']:1);
+            $total=Pdostore::$total;
+//             echo "TOTAL=";print_r($total); 
+            $links[Link::SELF]=new Link("$self?page[number]=$number&page[size]=$size", null, true);
+            if ($number>1) {
+                $firstSize=($size>$total?$total:$size);
+                $links[Link::FIRST]=new Link("$self?page[number]=1&page[size]=$firstSize", null, true);
+                $prevNumber=(($number-$size)<1?1:$number-$size);
+                $prevSize=(($prevNumber+$size)>$number?$number-$prevNumber:$size);
+                $links[Link::PREV]=new Link("$self?page[number]=$prevNumber&page[size]=$prevSize", null, true);            
+            }
+            $nextNumber=$number+$size;
+            if ($nextNumber<=$total) {
+                $nextNumber=$number+$size;
+                $nextSize=$total-$nextNumber+1;
+                $links[Link::NEXT]=new Link("$self?page[number]=$nextNumber&page[size]=$nextSize", null, true);            
+            }
+            $lastNumber=(($total-$size)<=0?1:$total-$size+1);
+            $lastSize=(($total-$lastNumber)<$size?$total-$lastNumber+1:$size);
+            $links[Link::LAST]=new Link("$self?page[number]=$lastNumber&page[size]=$lastSize", null, true);            
+//             echo "LINKS=";print_r($links); 
+        } else {
+            $links=[Link::SELF => new Link($self, null, true)];
+        }
+         
 //         $includePaths=(key_exists('include',$query)?$query['include']:[]);
         $fieldSets=$query['fields'];
 //         echo "fieldSets=";print_r($fieldSets);

@@ -9,6 +9,8 @@ class Pdostore {
     static $selectedObjects=[];
     static $includePaths=[];
     static $sort;
+    static $page;
+    static $total;
 
     public static function connectDb() {
         $dsn = 'pgsql:host=10.130.5.119;port=5432;dbname=JsonApiTest;';
@@ -83,11 +85,13 @@ class Pdostore {
         }
         self::$includePaths=(key_exists('include',$query)?$query['include']:false);
         self::$sort=(key_exists('sort',$query)?$query['sort']:false);
+        self::$page=(key_exists('page',$query)?$query['page']:false);
         $objects=self::selectObjects($modelClassName,$id,'');
         return $objects;
     }
         
     private static function selectObjects($modelClassName,$id,$relNamePath) {
+        $dbh=self::connectDb();
         $objects=[];
 //         echo "\n\n---------------\nselectObjects:: modelClassName=$modelClassName id=$id  relNamePath=$relNamePath\n";
         $PrimaryKeyName=$modelClassName::$PrimaryKeyName;
@@ -103,9 +107,9 @@ class Pdostore {
         foreach ($fieldList as $fieldName) {
             $FieldList[]='"' . $fieldName . '"';
         }
-        $fetchtCmd='SELECT ' . implode(',',$FieldList) . " FROM \"public\".\"$modelClassName\""; 
+        $fetchCmd='SELECT ' . implode(',',$FieldList) . " FROM \"public\".\"$modelClassName\""; 
         if ($id!==null) {   //Get Object By Id
-            $fetchtCmd.= " WHERE \"". $PrimaryKeyName . "\" = '" . $id . "'";
+            $fetchCmd.= " WHERE \"". $PrimaryKeyName . "\" = '" . $id . "'";
         }
 //         echo "SORT=";print_r(self::$sort);
 //         echo "lenOf relNamePath=".strlen($relNamePath)."\n";
@@ -114,12 +118,27 @@ class Pdostore {
             foreach (self::$sort as $fieldDesc) {
                 $Sort[]=$fieldDesc['field'] . ' ' . ($fieldDesc['asc']?'ASC':'DESC');
             }
-            $fetchtCmd.=" ORDER BY " .  implode(',',$Sort);
+            $fetchCmd.=" ORDER BY " .  implode(',',$Sort);
         }
-//         echo "fetchtCmd=$fetchtCmd<br>\n";
-        $dbh=self::connectDb();
+        if (is_array(self::$page) && strlen($relNamePath)==0) { //Paging on top level
+            $countCmd="SELECT COUNT(*) AS total FROM ($fetchCmd) AS n";
+            $reply = $dbh->query($countCmd);
+            foreach ($reply as $row) {
+//                 echo "COUNTROW=";print_r($row);echo "<br>\n";
+                self::$total=$row['total'];
+                break;
+            }
+
+            if (key_exists('number',self::$page)) {
+                $fetchCmd .= " OFFSET " . self::$page['number'];
+            }
+           if (key_exists('size',self::$page)) {
+                $fetchCmd .= " LIMIT " . self::$page['size'];
+            }
+        }
+//         echo "fetchtCmd=$fetchCmd<br>\n";
 //         echo "DBH=".print_r($dbh,true);
-        $reply = $dbh->query($fetchtCmd);
+        $reply = $dbh->query($fetchCmd);
         $ErrorCode=$dbh->errorCode();
         $errorCode=intval($ErrorCode);
 //         echo "ERRORCODE=$errorCode<br>\n";

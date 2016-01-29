@@ -62,6 +62,9 @@ class Get {
             }
             $retQuery['sort']=$sort;
         }
+        if (key_exists('page',$Query)) {
+            $retQuery['page']=$Query['page'];
+        }
         $ret=['path'=>$retPath,'query'=>$retQuery,'location'=>"/$location"];
         return $ret;       
     }
