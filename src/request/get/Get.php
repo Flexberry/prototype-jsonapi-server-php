@@ -65,6 +65,9 @@ class Get {
         if (key_exists('page',$Query)) {
             $retQuery['page']=$Query['page'];
         }
+        if (key_exists('filter',$Query)) {
+            $retQuery['filter']=$Query['filter'];
+        }
         $ret=['path'=>$retPath,'query'=>$retQuery,'location'=>"/$location"];
         return $ret;       
     }
