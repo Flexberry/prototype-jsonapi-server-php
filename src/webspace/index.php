@@ -68,64 +68,108 @@ switch ($_SERVER["REQUEST_METHOD"]) {
             $id=$path['id'];
             $objects=Pdostore::getObjects($type,$id,$query);
             $object=(key_exists(0,$objects)?$objects[0]:null);
-            if ($object && key_exists('related',$path)) {   //Get related object: /articles/1/tags,  /articles/1/tags/...
-//                 echo "<pre>object=";print_r($object);echo "</pre>";
-                $related=$path['related'];
-//                 echo "<pre>PATH=";print_r($path);echo "</pre>";
-//                 echo "<pre>RELATED=";print_r($related);echo "</pre>";
-                while (count($related)>0) {
-                    $relName=$related[0];
-//                     echo "<pre>relName=$relName Related=";print_r($related);echo "</pre>";
-                    $subType=$type::getTypeByRelationName($relName);  
-                    if (!$subType) {
-                        $detail="The Relationship $relName does not exist";
-                        \responce\Responce::sendErrorReply(['status'=>'404','title'=>'The Relationship  does not exist','detail'=>$detail]);            
+            $objects=$object;
+            if ($object) {  
+//                 echo "<pre>OBJECT=";print_r($object);echo "</pre>";
+                if (key_exists('related',$path)) {   //Get related object: /articles/1/tags,  /articles/1/tags/...          
+                    $related=$path['related'];
+    //                 echo "<pre>PATH=";print_r($path);echo "</pre>";
+    //                 echo "<pre>RELATED=";print_r($related);echo "</pre>";
+                    while (count($related)>0) {
+                        $relName=$related[0];
+    //                     echo "<pre>relName=$relName Related=";print_r($related);echo "</pre>";
+                        $subType=$type::getTypeByRelationName($relName);  
+                        if (!$subType) {
+                            $detail="The Relationship $relName does not exist";
+                            \responce\Responce::sendErrorReply(['status'=>'404','title'=>'The Relationship  does not exist','detail'=>$detail]);            
+                        }
+                        if (!class_exists($subType)) {
+                            $detail="The type  $subType does not exist";
+                            \responce\Responce::sendErrorReply(['status'=>'404','title'=>'The type  does not exist','detail'=>$detail]);            
+                        }
+                
+                        $PrimaryKeyName=$subType::$PrimaryKeyName;
+    //                     echo "<pre>subobject=";print_r($object->relationships[$relName]);echo "</pre>";
+                        $data=$object->relationships[$relName]['data'];
+                        if (is_array($data)) {
+                            $id=$related[1];
+                            $related=array_slice($related,2);
+                        } else {
+                            $id=$object->relationships[$relName]['data']->attributes[$PrimaryKeyName];
+                            $related=array_slice($related,1);
+                        }
+                        $type=$subType;
+    //                     echo "<pre>id=$id\nrelated=";print_r($related);echo "</pre>";
+                        $objects=Pdostore::getObjects($subType,$id,$query);
+                        $object=(key_exists(0,$objects)?$objects[0]:null);
                     }
-                     if (!class_exists($subType)) {
-                        $detail="The type  $subType does not exist";
-                        \responce\Responce::sendErrorReply(['status'=>'404','title'=>'The type  does not exist','detail'=>$detail]);            
-                    }
-            
-                    $PrimaryKeyName=$subType::$PrimaryKeyName;
-//                     echo "<pre>subobject=";print_r($object->relationships[$relName]);echo "</pre>";
-                    $data=$object->relationships[$relName]['data'];
-                    if (is_array($data)) {
-                        $id=$related[1];
-                        $related=array_slice($related,2);
+                    $objects=$object;
+                } elseif (key_exists('relationship',$path)) {   //Get relationships of object: /articles/1/relationships/tags
+                    $relationship=$path['relationship'];
+//                     echo "<pre>object=";print_r($object);echo "</pre>";           
+                    if (key_exists($relationship,$object->relationships) && key_exists('data',$object->relationships[$relationship])) {
+                        $object=$object->relationships[$relationship]['data'];
                     } else {
-                        $id=$object->relationships[$relName]['data']->attributes[$PrimaryKeyName];
-                        $related=array_slice($related,1);
+                        $object=null;
                     }
-                    $type=$subType;
-//                     echo "<pre>id=$id\nrelated=";print_r($related);echo "</pre>";
-                    $objects=Pdostore::getObjects($subType,$id,$query);
-                    $object=(key_exists(0,$objects)?$objects[0]:null);
+//                     echo "<pre>relationship=";print_r($object);echo "</pre>";           
+                    $objects=$object;
                 }
             }
-//             echo "<pre>OBJECT=";print_r($object);echo "</pre>\n";
             $listObjects=$objects;  //List Objects for schema generations
             $encodedObject=$objects;    // encoded Object
-//             $schemas=FJA::formSchemas($objects);
-//             $encoder = Encoder::instance($schemas, new EncoderOptions(JSON_PRETTY_PRINT, $baseURL));
-//             $json=$encoder->withLinks($links)->encodeData($object);
-// //             echo "<pre>JSON=$json</pre>\n";
-// //             echo "<pre>PHPJSON=";print_r(json_decode($json,true));echo "</pre>\n";
         } else {    //get collection of objects
             $objects=Pdostore::getObjects($type,null,$query);
             $listObjects=$objects;  //List Objects for schema generations
             $encodedObject=$objects;    // encoded Object
         }
 //         echo "LISTOBJECTS=";print_r($listObjects);
-        $schemas=FJA::formSchemas($listObjects);
+        $schemas=(is_object($listObjects)?FJA::formSchema($listObjects):FJA::formSchemas($listObjects));
 //         echo "schemas=";print_r($schemas);
-        $includePaths=(key_exists('include',$query)?$query['include']:[]);
+        if (key_exists('include',$query)) {
+            if (key_exists('relationship',$path)) {
+                $prefix=$path['relationship'] . '.';
+                $lenPrefix=strlen($prefix);
+                $includePaths=[];
+//                 echo "prefix=$prefix len=$lenPrefix\n";
+                foreach ($query['include'] as $include) {   //Select only include with reletionshipname's prefix removing prefix
+//                     echo "Prefix=".substr($include,0,$lenPrefix)."\n";
+                    if (substr($include,0,$lenPrefix)==$prefix) {
+                        $includePaths[]=substr($include,$lenPrefix);
+                    }
+                }
+//                 echo "SelectedIncludePath=";print_r($includePaths);
+            } else {
+                $includePaths=$query['include'];
+            }
+        } else {
+            $includePaths=[];
+        }
+//         $includePaths=(key_exists('include',$query)?$query['include']:[]);
         $fieldSets=$query['fields'];
 //         echo "fieldSets=";print_r($fieldSets);
         $encodingParameters = new EncodingParameters($includePaths,$fieldSets);
 
         $encoder = Encoder::instance($schemas, new EncoderOptions(JSON_PRETTY_PRINT, null));
 //             echo "encoder=".print_r($encoder,true);
-        $json=$encoder->withLinks($links)->encodeData($encodedObject,$encodingParameters);
+        if (key_exists('relationship',$path)) {
+            /* BUG in JSON APIneomerx Realisition on /articles/1/relationships/comments?include=comments.author
+            *  encodeIdentifiers() method does'nt form included :-( 
+            */
+            $json=$encoder->withLinks($links)->encodeData($encodedObject,$encodingParameters);
+            $objectTree=json_decode($json,true);
+            if (key_exists('included',$objectTree)) {   //included exists
+                $included=$objectTree['included'];
+                $json=$encoder->withLinks($links)->encodeIdentifiers($encodedObject,$encodingParameters);
+                $objectTree=json_decode($json,true);
+                $objectTree['included']=$included; //Add included to output json
+                $json=json_encode($objectTree);
+            } else {
+                $json=$encoder->withLinks($links)->encodeIdentifiers($encodedObject,$encodingParameters);
+            }
+        } else {
+            $json=$encoder->withLinks($links)->encodeData($encodedObject,$encodingParameters);
+        }
 //             echo "<pre>PHPJSON=";print_r(json_decode($json,true));echo "</pre>\n";
         
         $objectTree=json_decode($json,true);

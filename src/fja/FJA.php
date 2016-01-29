@@ -125,28 +125,32 @@ class FJA {
     public static function formSchemas($objects) {
         $ret=[];
         foreach ($objects as $object) {
-            $type=get_class($object);
-            $ret[$type]="SchemaOf$type";
-            if (isset($object->relationships) && is_Array($object->relationships)) {
-                foreach ($object->relationships as $relName=>$relationship) {
-                    if (key_exists('data',$relationship)) {
-                        $data=$relationship['data'];
-                        $dataType=gettype($data);
+            $ret=array_merge($ret,self::formSchema($object));
+        }
+        return $ret;
+    }
+    public static function formSchema($object) {
+        $type=get_class($object);
+        $ret[$type]="SchemaOf$type";
+        if (isset($object->relationships) && is_Array($object->relationships)) {
+            foreach ($object->relationships as $relName=>$relationship) {
+                if (key_exists('data',$relationship)) {
+                    $data=$relationship['data'];
+                    $dataType=gettype($data);
 //                         echo "relName=$relName dataType=$dataType\n";
-                        switch ($dataType) {
-                            case 'array':
-                                if (key_exists('type',$data)) {
-                                    $subType=$data['type'];
-                                    $ret[$subType]="SchemaOf$subType";
-                                }
-                            case 'object':
-                                $subTypes=self::formSchemas([$data]);
+                    switch ($dataType) {
+                        case 'array':
+                            if (key_exists('type',$data)) {
+                                $subType=$data['type'];
+                                $ret[$subType]="SchemaOf$subType";
+                            }
+                        case 'object':
+                            $subTypes=self::formSchemas([$data]);
 //                                 echo "subTypes=";print_r($subTypes);
-                                $ret=array_merge($ret,$subTypes);
-                                break;;
-                            default:
-                                echo "Unsupported data structure type $dataType :".print_r($data,true);;
-                        }
+                            $ret=array_merge($ret,$subTypes);
+                            break;;
+                        default:
+                            echo "Unsupported data structure type $dataType :".print_r($data,true);;
                     }
                 }
             }
