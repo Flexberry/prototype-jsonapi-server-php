@@ -207,14 +207,26 @@ switch ($_SERVER["REQUEST_METHOD"]) {
         break;;
     case 'PATCH':    //Корректировка объектов
         echo "Update object $request_uri<br>\n";
-        $postData=getPostData();
-//         echo "postData=";print_r($postData);
+        $postData=Post::getPostData();
+        echo "postData=";print_r($postData);
         break;;
     case 'DELETE':    //Корректировка объектов
         echo "Delete object $request_uri<br>\n";
+        $postData=Post::getPostData();
+        echo "postData=";print_r($postData);
         break;;
 }
 
+//      function getPostData() {
+//         $fp=fopen("php://input",'r');
+//         $request='';
+//         while ($str=fgets($fp)) {
+//             $request.= $str;
+//         }
+//         $request=trim($request);
+//         $ret=json_decode($request,true);
+//         return $ret;
+//     }
 
 
 
