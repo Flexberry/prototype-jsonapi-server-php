@@ -64,6 +64,62 @@ class Pdostore {
         return $object;    
     }
     
+    public static function deleteRelationship($modelClassName,$id,$relationship,$body) {
+//         echo "Change (delete parts of) relationship $relationship in object $modelClassName: $collection/$id\n";
+//         echo "BODY=";print_r($body);
+        if ($body) {
+            if (!key_exists('data',$body)) {
+                \responce\Responce::sendErrorReply(['status'=>'400','title'=>"Body request does'nt contain data field"]);
+            }
+            elseif ($body['data']!='null') {
+                \responce\Responce::sendErrorReply(['status'=>'400','title'=>'Request data field contain not null, unsupported in current release']);
+            }
+        }
+        $PrimaryKeyName=$modelClassName::$PrimaryKeyName;
+        $dbh=self::connectDb();
+        $updateCmd="UPDATE $modelClassName SET $relationship = null WHERE $PrimaryKeyName = '$id'";
+//         echo "updateCmd=$updateCmd\n";
+        $reply = $dbh->query($updateCmd);
+        $ErrorCode=$dbh->errorCode();
+        $errorCode=intval($ErrorCode);
+//         echo "ERRORCODE=$errorCode<br>\n";
+        if ($errorCode>0) {
+            switch ($ErrorCode) {  
+                default:
+                    $errorInfo=$dbh->errorInfo();
+                    $driverCode=(key_exists(1,$errorInfo)?$errorInfo[1]:'');
+                    $driverMessage=(key_exists(2,$errorInfo)?$errorInfo[2]:'');
+                    $detail="$errorCode/$driverCode: $driverMessage";
+//                     echo "$errorCode=". $dbh->errorCode() . " errorInfo=". print_r($errorInfo,true) . "<br>\n";
+                    \responce\Responce::sendErrorReply(['status'=>'200','title'=>'Objects are not available','detail'=>$detail]);
+            }
+        }
+    }
+
+    public static function deleteObject($modelClassName,$id) {
+//         echo "Delete object  $collection/$id\n";
+        $PrimaryKeyName=$modelClassName::$PrimaryKeyName;
+        $dbh=self::connectDb();
+        $deleteCmd="DELETE FROM $modelClassName WHERE $PrimaryKeyName = '$id'";
+//         echo "deleteCmd=$deleteCmd\n";
+        $reply = $dbh->query($deleteCmd);
+        $ErrorCode=$dbh->errorCode();
+        $errorCode=intval($ErrorCode);
+//         echo "ERRORCODE=$errorCode reply=\n";print_r($reply);
+        if ($errorCode>0) {
+            switch ($ErrorCode) {  
+                default:
+                    $errorInfo=$dbh->errorInfo();
+                    $driverCode=(key_exists(1,$errorInfo)?$errorInfo[1]:'');
+                    $driverMessage=(key_exists(2,$errorInfo)?$errorInfo[2]:'');
+                    $detail="$errorCode/$driverCode: $driverMessage";
+//                     echo "$errorCode=". $dbh->errorCode() . " errorInfo=". print_r($errorInfo,true) . "<br>\n";
+                    \responce\Responce::sendErrorReply(['status'=>'200','title'=>'Objects are not available','detail'=>$detail]);
+            }
+        }
+        
+    }
+    
     public static function updateObject($object) {
         $ret=true;
         return $ret;
