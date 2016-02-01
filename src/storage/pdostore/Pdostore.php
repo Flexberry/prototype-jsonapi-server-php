@@ -64,7 +64,7 @@ class Pdostore {
         return $object;    
     }
     
-    public static updateObject($object) {
+    public static function updateObject($object) {
         $ret=true;
         return $ret;
     }
