@@ -105,7 +105,12 @@ class Pdostore {
         $reply = $dbh->query($deleteCmd);
         $ErrorCode=$dbh->errorCode();
         $errorCode=intval($ErrorCode);
-//         echo "ERRORCODE=$errorCode reply=\n";print_r($reply);
+        $count=$reply->rowCount();
+//         echo "ERRORCODE=$errorCode count=$count reply=\n";print_r($reply);
+        if ($count==0) {
+            \responce\Responce::sendErrorReply(['status'=>'400','title'=>"Removed object with id=$id does'nt  exist"]);
+        }
+
         if ($errorCode>0) {
             switch ($ErrorCode) {  
                 default:

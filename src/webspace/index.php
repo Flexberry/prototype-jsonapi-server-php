@@ -226,6 +226,7 @@ switch ($_SERVER["REQUEST_METHOD"]) {
 //         phpinfo();
         break;;
     case 'DELETE':    //Корректировка объектов
+//         echo "Delete object $request_uri<br>\n";
         if (!key_exists('id',$path) || !trim($path['id'])) {
             \responce\Responce::sendErrorReply(['status'=>'400','title'=>"DELETE request does'nt contain id",'detail'=>"DELETE request does'nt contain id"]);    
         }
@@ -238,20 +239,9 @@ switch ($_SERVER["REQUEST_METHOD"]) {
         } else {
             Pdostore::deleteObject($path['type'],$id);             
         }
-        
+//         Responce::sendNoContent();
         break;;
 }
-
-//      function getPostData() {
-//         $fp=fopen("php://input",'r');
-//         $request='';
-//         while ($str=fgets($fp)) {
-//             $request.= $str;
-//         }
-//         $request=trim($request);
-//         $ret=json_decode($request,true);
-//         return $ret;
-//     }
 
 
 

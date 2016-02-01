@@ -1,11 +1,9 @@
 <?php
 use fja\Schema;
 class SchemaOfБлоха extends Schema {
+    public static $ResourceType='Блоха';
+    public static $SelfSubUrl='/Блохи/';
+    public static $IsShowSelfInIncluded=false;
 
-    function __construct($factory,$container) {
-        $this->resourceType = 'Блоха';
-        $this->selfSubUrl  = '/Блохи/';
-        $this->isShowSelfInIncluded = false;
-        parent::__construct($factory,$container);
-    }    
 }
+
