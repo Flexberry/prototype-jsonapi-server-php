@@ -1,10 +1,9 @@
 <?php 
-use \request\Request;
 namespace request\patch;
 /*
  *  Class support PATCH request
  */
-class Patch extends Request {
+class Patch extends \request\Request {
 
  
 }

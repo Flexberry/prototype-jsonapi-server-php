@@ -37,15 +37,35 @@ $restClient = new GuzzleHttp\Client(['base_uri' => $baseHost]);
 //   ]
 // }';
 
+$jsonСписокБерлог=sendGETRequest($restClient,"Список берлог","/Берлоги");
+$СписокБерлог=json_decode(strstr($jsonСписокБерлог,'{'),true);
+// echo "jsonСписокБерлог=$jsonСписокБерлог СписокБерлог=";print_r($СписокБерлог);
+foreach ($СписокБерлог['data'] as $берлога) {
+    $id=$берлога['id'];
+    print_r($берлога);
+    $Наименование=$берлога['attributes']['Наименование'];
+    echo "$Наименование $id\n";
+//     $deleteURL="/Берлоги/$id/relationships/ЛесРасположения";
+//     $json=json_encode(['data'=>'null']);
+    $deleteURL="/Берлоги/$id";
+    $json='';
+    $deleteBody=sendDELETERequest($restClient,"Удаление берлоги $Наименование ($id)",$deleteURL,$json);
+    print_r(json_decode($deleteBody,true));
+    exit;
+    
+}
+
+// print_r(json_decode($jsonСписокБерлог,true));
+exit;
+
 sendDELETERequest($restClient,'Test','Медведи/1',$json);
 
 
 
 
-function sendGETRequest($restClient,$title,$uri,$body) {
-    echo "BEAR::Sent:" .  print_r(json_decode($body,true),true);
+function sendGETRequest($restClient,$title,$uri) {
     try {
-        $reply=$restClient->request('GET',$uri, ['body'=>$body]);
+        $reply=$restClient->request('GET',$uri);
     } catch (ClientException $e) {
         echo "Ошибка в выполнении запроса: ";
         if ($e->hasResponse()) {
@@ -55,18 +75,18 @@ function sendGETRequest($restClient,$title,$uri,$body) {
         }
         exit;
     }
-    echo "\n\n---------------- $title -------------\n";
-    echo "BEAR::StatusCode=" . $reply->getStatusCode() . "\n";
-    echo "BEAR::Headers="; print_r($reply->getHeaders());
     $body=$reply->getBody();
-    echo "BEAR::Body=$body\n";
-    echo "BEAR::BODY=".print_r(json_decode($body,true),true);
+//     echo "\n\n---------------- $title -------------\n";
+//     echo "BEAR::StatusCode=" . $reply->getStatusCode() . "\n";
+//     echo "BEAR::Headers="; print_r($reply->getHeaders());
+//     echo "BEAR::Body=$body\n";
+//     echo "BEAR::BODY=".print_r(json_decode($body,true),true);
     return $body;
 }
 
 
-function sendDELETERequest($restClient,$title,$uri,$body) {
-    echo "BEAR::Sent:" .  print_r(json_decode($body,true),true);
+function sendDELETERequest($restClient,$title,$uri,$body='') {
+    echo "BEAR::Sent: $body=" .  print_r(json_decode($body,true),true);
     try {
         $reply=$restClient->request('DELETE',$uri, ['body'=>$body]);
     } catch (ClientException $e) {

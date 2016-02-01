@@ -5,7 +5,9 @@ use \Neomerx\JsonApi\Encoder\EncoderOptions;
 use \Neomerx\JsonApi\Parameters\EncodingParameters;
 use \Neomerx\JsonApi\Schema\Link;
 
+use \request\Request;
 use \request\post\Post;
+use \request\delete\Delete;
 use \request\patch\Patch;
 use \request\get\Get;
 use \responce\Responce;
@@ -26,9 +28,28 @@ spl_autoload_register(['\fja\FJA', 'autoload'], true, true);
 $baseURL="http://".$_SERVER["HTTP_HOST"];
 $request_uri=$_SERVER["REQUEST_URI"];
 $href=$baseURL.urldecode($request_uri);
+$parsedRequest=Request::urlParse($request_uri);
+//         echo "parsedRequest=";print_r($parsedRequest);
+$path=$parsedRequest['path'];
+if (!key_exists('collection',$path) || !trim($path['collection'])) {
+        \responce\Responce::sendErrorReply(['status'=>'400','title'=>"Request does'nt contain collection",'detail'=>"Request does'nt contant collection"]);
+}
+
+$query=$parsedRequest['query'];
+$type=ListTypes::getTypeBySubUrl($path['collection']);
+if (!$type) {
+    \responce\Responce::sendErrorReply(['status'=>'400','title'=>"Unknown collection ". $path['collection']]);    
+}
+$path['type']=$type;
+// echo "Path=";print_r($path);
+
+
 switch ($_SERVER["REQUEST_METHOD"]) {
     case 'POST':    //Создание объектов
 //         echo "Create object $request_uri<br>\n";
+        if (key_exists('id',$path) && trim($path['id'])) {
+            \responce\Responce::sendErrorReply(['status'=>'400','title'=>"Create request contain id",'detail'=>"Create request contain id".$path['id']]);    
+        }
         $object=Post::dataToObject(Post::getBody());
         $primaryKeyName=$object->primaryKeyName;
     //     echo "primaryKeyName=$primaryKeyName\n";
@@ -60,12 +81,6 @@ switch ($_SERVER["REQUEST_METHOD"]) {
         break;;
     case 'GET':    //Запрос объектов
 //         echo "Fetch object $request_uri<br>\n";
-        $parsedRequest=Get::urlParse($request_uri);
-//         echo "parsedRequest=";print_r($parsedRequest);
-        $path=$parsedRequest['path'];
-        $query=$parsedRequest['query'];
-        $type=ListTypes::getTypeBySubUrl($path['collection']);
-        $path['type']=$type;
         if (key_exists('id',$path)) {   // get one object
             $id=$path['id'];
             $objects=Pdostore::getObjects($type,$id,$query);
@@ -211,9 +226,19 @@ switch ($_SERVER["REQUEST_METHOD"]) {
 //         phpinfo();
         break;;
     case 'DELETE':    //Корректировка объектов
-        echo "Delete object $request_uri<br>\n";
-        $postData=Post::getPostData();
-        echo "postData=";print_r($postData);
+        if (!key_exists('id',$path) || !trim($path['id'])) {
+            \responce\Responce::sendErrorReply(['status'=>'400','title'=>"DELETE request does'nt contain id",'detail'=>"DELETE request does'nt contain id"]);    
+        }
+        $id=$path['id'];
+        if (key_exists('relationship',$path) && trim($path['relationship'])) {
+            $relationship=$path['relationship'];
+            $body=Delete::getBody();
+//             echo "postData=";print_r($postData);
+            Pdostore::deleteRelationship($path['type'],$id,$relationship,$body); 
+        } else {
+            Pdostore::deleteObject($path['type'],$id);             
+        }
+        
         break;;
 }
 

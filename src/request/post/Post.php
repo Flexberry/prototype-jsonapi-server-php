@@ -1,10 +1,9 @@
 <?php 
-use \request\Request;
 namespace request\post;
 /*
  *  Class support POST request
  */
-class Post extends Request {
+class Post extends \request\Request {
 
     /*
      * Get POST data, Decode JSON to Array

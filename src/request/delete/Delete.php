@@ -4,7 +4,7 @@ namespace request\delete;
 /*
  *  Class support DELETE request
  */
-class DELETE extends Request {
+class Delete extends \request\Request {
 
  
 }
