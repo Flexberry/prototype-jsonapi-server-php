@@ -22,20 +22,6 @@ spl_autoload_register(['\fja\FJA', 'autoload'], true, true);
 $restClient = new GuzzleHttp\Client(['base_uri' => $baseHost]);
 
 
-// $encoder = \Neomerx\JsonApi\Encoder\Encoder::instance([
-//     'Медведь' => '\SchemaOfМедведь',
-//     'Лес' => '\SchemaOfЛес',
-//     'Страна' => '\SchemaOfСтрана',
-//     'Берлога' => '\SchemaOfБерлога',
-//     'Блоха' => '\SchemaOfБлоха',
-// ], new \Neomerx\JsonApi\Encoder\EncoderOptions(JSON_PRETTY_PRINT, $baseURL));
-// 
-// $json='{
-//   "data": [
-//     { "type": "comments", "id": "12" },
-//     { "type": "comments", "id": "13" }
-//   ]
-// }';
 
 $jsonСписокБерлог=sendGETRequest($restClient,"Список берлог","/Берлоги");
 $СписокБерлог=json_decode(strstr($jsonСписокБерлог,'{'),true);
@@ -68,19 +54,36 @@ foreach ($СписокБлох['data'] as $блоха) {
     print_r(json_decode($deleteBody,true));
 }
 
-$jsonСписокМедведей=sendGETRequest($restClient,"Список медведей","/Медведи");
+$jsonСписокМедведей=sendGETRequest($restClient,"Список медведей","/Медведи?include=Папа,Мама");
 $СписокМедведей=json_decode(strstr($jsonСписокМедведей,'{'),true);
-// echo "jsonСписокМедведей=$jsonСписокМедведей СписокМедведей=";print_r($СписокМедведей);
+echo "СписокМедведей=";print_r($СписокМедведей);
+$children=[];
+$bears=[];
 foreach ($СписокМедведей['data'] as $медведь) {
     $id=$медведь['id'];
-    $ПорядковыйНомер=$медведь['attributes']['ПорядковыйНомер'];
-    print_r($медведь);
-    echo "$ПорядковыйНомер $id\n";
-    $deleteURL="/Медведи/$id";
-    $json='';
-    $deleteBody=sendDELETERequest($restClient,"Удаление медведя $ПорядковыйНомер ($id)",$deleteURL,$json);
-    print_r(json_decode($deleteBody,true));
+    $bears[$id]=$медведь;
+    if (key_exists('Папа',$медведь['relationships'])) {
+        $parendId=$медведь['relationships']['Папа']['data']['id'];
+        echo "Папа $id ->  $parendId\n";
+        $children[$parendId][]=$id;
+    }
+    if (key_exists('Мама',$медведь['relationships'])) {
+        $parendId=$медведь['relationships']['Мама']['data']['id'];
+        echo "Мама $id ->  $parendId\n";
+        $children[$parendId][]=$id;
+    }
 }
+// echo "children=";print_r($children);
+foreach ($children as  $parentId=>$childrenIds) {
+    foreach ($childrenIds as $childId) {
+        if (key_exists($childId,$bears)) {
+            deleteМедведь($restClient,$bears[$childId]);
+            unset($bears[$childId]);
+        }
+    }
+    deleteМедведь($restClient,$bears[$parentId]);
+}
+
 
 $jsonСписокЛесов=sendGETRequest($restClient,"Список лесов","/Леса");
 $СписокЛесов=json_decode(strstr($jsonСписокЛесов,'{'),true);
@@ -92,7 +95,7 @@ foreach ($СписокЛесов['data'] as $лес) {
     echo "$Название $id\n";
     $deleteURL="/Леса/$id";
     $json='';
-    $deleteBody=sendDELETERequest($restClient,"Удаление леса $Название ($id)",$deleteURL,$json);
+    $deleteBody=sendDELETERequest($restClient,"Удаление  $Название ($id)",$deleteURL,$json);
     print_r(json_decode($deleteBody,true));
 }
 
@@ -113,6 +116,16 @@ foreach ($СписокСтран['data'] as $страна) {
 // print_r(json_decode($jsonСписокСтран,true));
 
 
+function deleteМедведь($restClient,$медведь) {
+    $id=$медведь['id'];
+    $ПорядковыйНомер=$медведь['attributes']['ПорядковыйНомер'];
+    print_r($медведь);
+    echo "$ПорядковыйНомер $id\n";
+    $deleteURL="/Медведи/$id";
+    $json='';
+    $deleteBody=sendDELETERequest($restClient,"Удаление медведя $ПорядковыйНомер ($id)",$deleteURL,$json);
+    print_r(json_decode($deleteBody,true));
+}
 
 
 

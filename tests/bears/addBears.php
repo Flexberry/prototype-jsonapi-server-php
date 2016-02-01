@@ -43,7 +43,9 @@ $reply=sendPOSTRequest($restClient,$encoder,"Страна","Страны",$ст�
 $id=\fja\FJA::getDataFromJson($reply)['id'];
 $страна1->setId($id);
 echo "BEAR::страна1=";print_r($страна1);
-exit;
+// exit;
+
+
 $лес1= Лес::instance(
     null,
     [
@@ -125,28 +127,28 @@ echo "BEAR::медведь3=";print_r($медведь3);
 
 $блоха1=\Блоха::instance(null,['Кличка'=>'Машка'],['МедведьОбитания' => ['data' => $медведь1]]);
 if ($clientGeneratedUUid) $блоха1->setId(\fja\FJA::uuid_gen());
-$reply=sendPOSTRequest($restClient,$encoder,"Блоха1","Блоха/1",$блоха1);
+$reply=sendPOSTRequest($restClient,$encoder,"Блоха1","Блохи",$блоха1);
 $id=\fja\FJA::getDataFromJson($reply)['id'];
 $блоха1->setId($id);
 echo "BEAR::блоха1=";print_r($блоха1); 
 
 $блоха2=\Блоха::instance(null,['Кличка'=>'Сашка'],['МедведьОбитания' => ['data' => $медведь1]]);
 if ($clientGeneratedUUid) $блоха2->setId(\fja\FJA::uuid_gen());
-$reply=sendPOSTRequest($restClient,$encoder,"Блоха2","Блоха/1",$блоха2);
+$reply=sendPOSTRequest($restClient,$encoder,"Блоха2","Блохи",$блоха2);
 $id=\fja\FJA::getDataFromJson($reply)['id'];
 $блоха2->setId($id);
 echo "BEAR::блоха2=";print_r($блоха2); 
 
 $блоха3=\Блоха::instance(null,['Кличка'=>'Дашка'],['МедведьОбитания' => ['data' => $медведь2]]);
 if ($clientGeneratedUUid) $блоха3->setId(\fja\FJA::uuid_gen());
-$reply=sendPOSTRequest($restClient,$encoder,"Блоха3","Блоха/1",$блоха3);
+$reply=sendPOSTRequest($restClient,$encoder,"Блоха3","Блохи",$блоха3);
 $id=\fja\FJA::getDataFromJson($reply)['id'];
 $блоха3->setId($id);
 echo "BEAR::блоха3=";print_r($блоха3); 
 
 $блоха4=\Блоха::instance(null,['Кличка'=>'Пашка'],['МедведьОбитания' => ['data' => $медведь3]]);
 if ($clientGeneratedUUid) $блоха4->setId(\fja\FJA::uuid_gen());
-$reply=sendPOSTRequest($restClient,$encoder,"Блоха4","Блоха/1",$блоха4);
+$reply=sendPOSTRequest($restClient,$encoder,"Блоха4","Блохи",$блоха4);
 $id=\fja\FJA::getDataFromJson($reply)['id'];
 $блоха4->setId($id);
 echo "BEAR::блоха4=";print_r($блоха4); 
@@ -235,14 +237,18 @@ function sendPOSTRequest($restClient,$encoder,$title,$uri,$instance) {
         echo "Ошибка в выполнении запроса: ";
         if ($e->hasResponse()) {
             $response=$e->getResponse();
-            $body=$response->getStatusCode() . ' ' . $response->getReasonPhrase();
-            echo "Ответ: " .  print_r($body,true);
+            echo "StatusCode=".$response->getStatusCode()."\n";
+            $body=$response->getBody();
+            $jsonPos=strpos($body,'{');
+            echo "Carbage=".substr($body,0,$jsonPos);;
+            $content=json_decode(strstr($body,'{'),true);
+            echo "\nShift=$jsonPos\nContent=";print_r($content);
         }
         exit;
     }
     echo "\n\n---------------- $title -------------\n";
     echo "BEAR::StatusCode=" . $reply->getStatusCode() . "\n";
-    echo "BEAR::Headers="; print_r($reply->getHeaders());
+//     echo "BEAR::Headers="; print_r($reply->getHeaders());
     $body=$reply->getBody();
     echo "BEAR::Body=$body\n";
     echo "BEAR::BODY=".print_r(json_decode($body,true),true);
