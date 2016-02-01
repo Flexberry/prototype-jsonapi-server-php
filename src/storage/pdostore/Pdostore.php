@@ -26,15 +26,7 @@ class Pdostore {
 
     public static function addObjectToDb($object) {
     //     echo "object=".print_r($object,true);
-        $primaryKeyName=$object->primaryKeyName;
-    //     echo "primaryKeyName=$primaryKeyName\n";
-        if (!key_exists($primaryKeyName,$object->attributes) || !trim($object->attributes[$primaryKeyName])) {
-            $primaryKey=\fja\FJA::uuid_gen();
-            $object->attributes[$primaryKeyName]=$primaryKey;
-        } else {
-            $primaryKey=$object->attributes[$primaryKeyName];
-        }
-        return $object;    
+//         return $object;    
     //     echo "primaryKey=$primaryKey\n";
         $className=get_class($object);
         $insertCmd="INSERT INTO public." . $className . ' ';; 
@@ -72,11 +64,10 @@ class Pdostore {
         return $object;    
     }
     
-//     public static function getObject($path,$query) {
-//         echo "getObject::path=<pre>";print_r($path);echo "</pre>";
-//         echo "getObject::query=<pre>";print_r($query);echo "</pre>";
-//         
-//     }
+    public static updateObject($object) {
+        $ret=true;
+        return $ret;
+    }
 
     public static function getObjects($modelClassName,$id,$query) {
         if (!$modelClassName || !class_exists($modelClassName)) {

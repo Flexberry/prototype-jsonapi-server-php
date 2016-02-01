@@ -79,30 +79,15 @@ class FJA {
         return $jsonTree['data'];
     }
 
-    public static function decodeData($data) {
+    public static function dataToObject($data) {
         if (!key_exists('type',$data)) {
             echo "Отсутствует аттрибут type в " . print_r($data,true) ;
             return [];
         }
-        $type=$data['type'];
-        if (!key_exists('attributes',$data)) {
-            echo "Отсутствует аттрибут attributes в " . print_r($data,true) ;
-            return [];
-        }
-        $attributes=$data['attributes'];
-        $relationships=[];
-        if (key_exists('relationships',$data)) {
-            $relationships=$data['relationships'];
-        }
-        
-        $modelClass="Models/$type";
-    //     echo "modelClass=$modelClass\n";
-        \fja\FJA::autoload($modelClass);
-        $schemaClass="Schemas/SchemaOf$type";
-        \fja\FJA::autoload($schemaClass);
-    //     echo "schemaClass=$schemaClass\n";
-        $className="\\$type";
+        $className=$data['type'];
     //     echo "className=$className\n";
+        $attributes=key_exists('attributes',$data)?$data['attributes']:[];
+        $relationships=key_exists('relationships',$data)?$data['relationships']:[];
         $object=new $className(null,$attributes,$relationships);
     //     echo "Object=".print_r($object,true);
         return $object; 

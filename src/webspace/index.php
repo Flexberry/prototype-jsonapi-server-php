@@ -6,6 +6,7 @@ use \Neomerx\JsonApi\Parameters\EncodingParameters;
 use \Neomerx\JsonApi\Schema\Link;
 
 use \request\post\Post;
+use \request\patch\Patch;
 use \request\get\Get;
 use \responce\Responce;
 use storage\pdostore\Pdostore;
@@ -28,30 +29,34 @@ $href=$baseURL.urldecode($request_uri);
 switch ($_SERVER["REQUEST_METHOD"]) {
     case 'POST':    //Создание объектов
 //         echo "Create object $request_uri<br>\n";
-        $postData=Post::getPostData();
-//         echo "postData=";print_r($postData);
-        $listObjects=Post::decodePostData($postData);
-//         echo "listObjects=".print_r($listObjects,true);
-        $nObjects=count($listObjects);
-        if ($nObjects==0) {
-            Responce::sendErrorReply(['status'=>'403','title'=>'No object in request']);
-        } elseif ($nObjects>1) {
-            Responce::sendErrorReply(['status'=>'403','title'=>'Several objects in request (included option)']);
+        $object=Post::dataToObject(Post::getBody());
+        $primaryKeyName=$object->primaryKeyName;
+    //     echo "primaryKeyName=$primaryKeyName\n";
+        if (!key_exists($primaryKeyName,$object->attributes) || !trim($object->attributes[$primaryKeyName])) {
+            $changed=true;
+            $primaryKey=\fja\FJA::uuid_gen();
+            $object->attributes[$primaryKeyName]=$primaryKey;
+        } else {
+            $changed=false;
         }
-        $object=$listObjects[0];
         Pdostore::addObjectToDb($object); 
-//         echo "object=".print_r($object,true);        
-        $schemas=FJA::formSchemas([$object]);
-//         echo "schemas=".print_r($schemas,true);
-        $encoder = Encoder::instance($schemas, new EncoderOptions(JSON_PRETTY_PRINT, $baseURL));
-//         echo "encoder=".print_r($encoder,true);
-        $object=FJA::replaceRelationshipsObject($object);        
-//         echo "object=".print_r($object,true);
-        $json=$encoder->encodeData($object);
-//         echo "json=".print_r($json,true);
-        $objectTree=json_decode($json,true);
-        $location=$objectTree['data']['links']['self'];
-        Responce::sendCreatedObject($location,$json);
+        if ($changed) {
+            $object=FJA::replaceRelationshipsObject($object);        
+            $schemas=FJA::formSchema($object);
+            $encoder = Encoder::instance($schemas, new EncoderOptions(JSON_PRETTY_PRINT, $baseURL));
+            $json=$encoder->encodeData($object);
+            $objectTree=json_decode($json,true);
+            $location=$objectTree['data']['links']['self'];
+            Responce::sendObjects($json,'201',["Location: $location"]);
+        } else {
+            Responce::sendNoContent();            
+        }
+        break;;
+    case 'PATCH':    //Корректировка объектов
+        echo "Update object $request_uri<br>\n";
+        $object=Patch::dataToObject(Patch::getBody());
+        $succes=Pdostore::updateObject($object); 
+
         break;;
     case 'GET':    //Запрос объектов
 //         echo "Fetch object $request_uri<br>\n";
@@ -201,14 +206,9 @@ switch ($_SERVER["REQUEST_METHOD"]) {
         
         $objectTree=json_decode($json,true);
         $location=$objectTree['links']['self'];
-        Responce::sendObjects($json);
+        Responce::sendObjects($json,'200');
 
 //         phpinfo();
-        break;;
-    case 'PATCH':    //Корректировка объектов
-        echo "Update object $request_uri<br>\n";
-        $postData=Post::getPostData();
-        echo "postData=";print_r($postData);
         break;;
     case 'DELETE':    //Корректировка объектов
         echo "Delete object $request_uri<br>\n";
