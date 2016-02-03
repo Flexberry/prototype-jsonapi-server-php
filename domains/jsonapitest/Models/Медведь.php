@@ -16,15 +16,8 @@ class Медведь extends Model {
         'Мама'=>'Медведь',
         'ЛесОбитания'=>'Лес'
         ];
-
-//     public function __construct($id,$attributes,$relationships) {
-//         $this->primaryKeyName=static::$PrimaryKeyName;
-//         $this->attrTypes=static::$AttrTypes;
-//         parent::__construct($id,$attributes,$relationships);
-//     }
     
-//     public static function instance($id=null,$attributes=[],$relationships=[]) {
-//         return new static($id,$attributes,$relationships);
-//     }
-     
+    public static $detailsList=[
+        'Берлоги'=>'Берлога'
+        ];
 }
