@@ -64,7 +64,7 @@ switch ($_SERVER["REQUEST_METHOD"]) {
         if ($changed) {
             $object=FJA::replaceRelationshipsObject($object);        
             $schemas=FJA::formSchema($object);
-            $encoder = Encoder::instance($schemas, new EncoderOptions(JSON_PRETTY_PRINT, $baseURL));
+            $encoder = Encoder::instance($schemas, new EncoderOptions(0, $baseURL));
             $json=$encoder->encodeData($object);
             $objectTree=json_decode($json,true);
             $location=$objectTree['data']['links']['self'];
@@ -197,7 +197,7 @@ switch ($_SERVER["REQUEST_METHOD"]) {
 //         echo "fieldSets=";print_r($fieldSets);
         $encodingParameters = new EncodingParameters($includePaths,$fieldSets);
 
-        $encoder = Encoder::instance($schemas, new EncoderOptions(JSON_PRETTY_PRINT, null));
+        $encoder = Encoder::instance($schemas, new EncoderOptions(0, null));
 //             echo "encoder=".print_r($encoder,true);
         if (key_exists('relationship',$path)) {
             /* BUG in JSON APIneomerx Realisition on /articles/1/relationships/comments?include=comments.author
