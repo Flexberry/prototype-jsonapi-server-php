@@ -24,6 +24,38 @@ class Pdostore {
         return $dbh;
     }
 
+    public static function updateObject($object,$id) {
+         echo "object=".print_r($object,true);
+        $className=get_class($object);
+        $PrimaryKeyName=$className::$PrimaryKeyName;
+        $updateCmd="UPDATE $className SET ";
+        $set=[];
+        foreach ($object->attributes as $name=>$value) {
+            if ($name==$PrimaryKeyName) continue;
+            $set[]="$name = '$value'";
+        }
+       foreach ($object->relationships as $name=>$descr) {
+            $value=$descr['data']['id'];
+            $set[]="$name = '$value'";
+        }
+        $updateCmd.= implode(', ',$set);
+        $updateCmd.=" WHERE $PrimaryKeyName = '$id'";
+        echo "updateCmd=$updateCmd\n";
+       $dbh=self::connectDb();
+    //     echo "DBH=".print_r($dbh,true);
+        $count = $dbh->exec($updateCmd);
+        if (($errorCode=intval($dbh->errorCode()))>0) {
+            $errorInfo=$dbh->errorInfo();
+            $driverCode=(key_exists(1,$errorInfo)?$errorInfo[1]:'');
+            $driverMessage=(key_exists(2,$errorInfo)?$errorInfo[2]:'');
+            $detail="$errorCode/$driverCode: $driverMessage";
+            echo $detail;
+            \responce\Responce::sendErrorReply(['status'=>'403','title'=>'Object not updated, database error','detail'=>$detail]);
+        }
+        $ret=true;
+        return $ret;
+    }
+
     public static function addObjectToDb($object) {
     //     echo "object=".print_r($object,true);
 //         return $object;    
@@ -124,10 +156,6 @@ class Pdostore {
         
     }
     
-    public static function updateObject($object) {
-        $ret=true;
-        return $ret;
-    }
 
     public static function getObjects($modelClassName,$id,$query) {
         if (!$modelClassName || !class_exists($modelClassName)) {

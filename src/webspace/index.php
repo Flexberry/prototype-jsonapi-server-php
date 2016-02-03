@@ -73,11 +73,31 @@ switch ($_SERVER["REQUEST_METHOD"]) {
             Responce::sendNoContent();            
         }
         break;;
+    case 'DELETE':    //Корректировка объектов
+//         echo "Delete object $request_uri<br>\n";
+        if (!key_exists('id',$path) || !trim($path['id'])) {
+            \responce\Responce::sendErrorReply(['status'=>'400','title'=>"DELETE request does'nt contain id",'detail'=>"DELETE request does'nt contain id"]);    
+        }
+        $id=$path['id'];
+        if (key_exists('relationship',$path) && trim($path['relationship'])) {
+            $relationship=$path['relationship'];
+            $body=Delete::getBody();
+//             echo "postData=";print_r($postData);
+            Pdostore::deleteRelationship($path['type'],$id,$relationship,$body); 
+        } else {
+            Pdostore::deleteObject($path['type'],$id);             
+        }
+        Responce::sendNoContent();
+        break;;
     case 'PATCH':    //Корректировка объектов
         echo "Update object $request_uri<br>\n";
+        if (!key_exists('id',$path) || !trim($path['id'])) {
+            \responce\Responce::sendErrorReply(['status'=>'400','title'=>"PATCH request does'nt contain id",'detail'=>"PATCH request does'nt contain id"]);    
+        }
+        $id=$path['id'];
         $object=Patch::dataToObject(Patch::getBody());
-        $succes=Pdostore::updateObject($object); 
-
+        $succes=Pdostore::updateObject($object,$id); 
+        Responce::sendNoContent();
         break;;
     case 'GET':    //Запрос объектов
 //         echo "Fetch object $request_uri<br>\n";
@@ -224,22 +244,6 @@ switch ($_SERVER["REQUEST_METHOD"]) {
         Responce::sendObjects($json,'200');
 
 //         phpinfo();
-        break;;
-    case 'DELETE':    //Корректировка объектов
-//         echo "Delete object $request_uri<br>\n";
-        if (!key_exists('id',$path) || !trim($path['id'])) {
-            \responce\Responce::sendErrorReply(['status'=>'400','title'=>"DELETE request does'nt contain id",'detail'=>"DELETE request does'nt contain id"]);    
-        }
-        $id=$path['id'];
-        if (key_exists('relationship',$path) && trim($path['relationship'])) {
-            $relationship=$path['relationship'];
-            $body=Delete::getBody();
-//             echo "postData=";print_r($postData);
-            Pdostore::deleteRelationship($path['type'],$id,$relationship,$body); 
-        } else {
-            Pdostore::deleteObject($path['type'],$id);             
-        }
-//         Responce::sendNoContent();
         break;;
 }
 

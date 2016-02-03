@@ -43,7 +43,6 @@ $reply=sendPOSTRequest($restClient,$encoder,"Страна","Страны",$ст�
 $id=\fja\FJA::getDataFromJson($reply)['id'];
 $страна1->setId($id);
 echo "BEAR::страна1=";print_r($страна1);
-// exit;
 
 
 $лес1= Лес::instance(
@@ -230,7 +229,8 @@ echo "BEAR::берлога4=";print_r($берлога4);
 
 function sendPOSTRequest($restClient,$encoder,$title,$uri,$instance) {
     $body=$encoder->encodeData($instance);
-    echo "BEAR::Sent:" .  print_r(json_decode($body,true),true);
+//     echo "BEAR::Sent:" .  print_r(json_decode($body,true),true);
+    echo "BEAR::Sent:\n$body";
     try {
         $reply=$restClient->request('POST',$uri, ['body'=>$body]);
     } catch (ClientException $e) {
