@@ -6,7 +6,7 @@ namespace request;
 class Request {
 
     /*
-     * Get POST/PATCH/DELETE data, Decode JSON to Array
+     * Get Body of REST request
      * 
      * @return array
      */
