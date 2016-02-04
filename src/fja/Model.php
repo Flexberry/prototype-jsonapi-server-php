@@ -33,8 +33,19 @@ class Model {
         $this->attributes[$this->primaryKeyName]=$id;
     }
     
+    public function getId() {
+        $ret=$this->attributes[$this->primaryKeyName];
+        return $ret;
+    }
+    
     public function setRelationships($relationships) {
         $this->relationships=$relationships;
+    }
+    
+    public function setRelationship($relationName,$relationType,$relationValue) {
+        $data=['type'=>$relationType,'id'=>$relationValue];
+        $object=new $relationType($relationValue);
+        $this->relationships[$relationName]['data']=$data;
     }
     
     public static function getAttributeList() {
@@ -49,7 +60,20 @@ class Model {
     
     public static function getTypeByRelationName($name) {
         $ret=(key_exists($name,static::$relationshipList)?static::$relationshipList[$name]:'');
+        if (substr($ret,-2)=='[]') {
+            $ret=substr($ret,0,-2);
+        }
         return $ret;
     }
+    
+    public static function getRelationNameByType($type) {
+        foreach (static::$relationshipList as $relName=>$relType) {
+            if ($relType==$relName) {
+                return $relType;
+            }
+        }
+        return '';
+    }
+
 
 }

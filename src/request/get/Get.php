@@ -15,7 +15,7 @@ class Get extends \request\Request {
      * 
      * @return string or false
      */
-     public static function getObject($parsedRequest) {
+     public static function getObject($parsedRequest,$baseURL) {
         $path=$parsedRequest['path'];
         $query=$parsedRequest['query'];
         $json=false;

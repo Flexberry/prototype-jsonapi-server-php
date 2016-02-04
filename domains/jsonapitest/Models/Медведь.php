@@ -17,7 +17,9 @@ class Медведь extends Model {
         'ЛесОбитания'=>'Лес'
         ];
     
-    public static $detailsList=[
-        'Берлоги'=>'Берлога'
+    public static $backRelationshipsList=[
+        'Берлоги'=>'Берлога[]',
+        'Дети'=>['Папа','Мама'],
+        'Блохи'=>'Блоха[]'
         ];
 }

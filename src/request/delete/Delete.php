@@ -16,7 +16,7 @@ class Delete extends \request\Request {
      * 
      * @return string or false
      */
-     public static function deleteObject($path) {
+     public static function deleteObject($path,$baseURL) {
         $id=$path['id'];
         $json=false;
         if (key_exists('relationship',$path) && trim($path['relationship'])) {

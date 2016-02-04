@@ -16,7 +16,7 @@ class Patch extends \request\Request {
      * 
      * @return string or false
      */
-     public static function updateObject($path) {
+     public static function updateObject($path,$baseURL) {
         $json=false;
         $id=$path['id'];
         $object=Patch::dataToObject(Patch::getBody());

@@ -79,6 +79,16 @@ class FJA {
         return $jsonTree['data'];
     }
 
+    public static function includedToObjectsArray($included) {
+        $ret=[];
+        foreach ($included as $data) {
+            $object=self::dataToObject($data);
+            $id=$object->getId();
+            $ret[$id]=$object;
+        }
+        return $ret;
+    }
+    
     public static function dataToObject($data) {
         if (!key_exists('type',$data)) {
             echo "Отсутствует аттрибут type в " . print_r($data,true) ;
@@ -115,10 +125,12 @@ class FJA {
         return $ret;
     }
     public static function formSchema($object) {
+//         echo "formSchema::object=";print_r($object);
         $type=get_class($object);
         $ret[$type]="SchemaOf$type";
         if (isset($object->relationships) && is_Array($object->relationships)) {
             foreach ($object->relationships as $relName=>$relationship) {
+//                 echo "formSchema::relName=$relName relationship=";print_r($relationship);
                 if (key_exists('data',$relationship)) {
                     $data=$relationship['data'];
                     $dataType=gettype($data);
@@ -128,7 +140,27 @@ class FJA {
                             if (key_exists('type',$data)) {
                                 $subType=$data['type'];
                                 $ret[$subType]="SchemaOf$subType";
+                            } else {    //Array of objects or arrays
+                                $datas=$data;
+                                foreach ($datas as $data) {
+                                    switch ($dataType) {
+                                        case 'array':
+                                            if (key_exists('type',$data)) {
+                                                $subType=$data['type'];
+                                                $ret[$subType]="SchemaOf$subType";
+                                            }
+                                        case 'object':
+                                            $subTypes=self::formSchemas([$data]);
+                //                                 echo "subTypes=";print_r($subTypes);
+                                            $ret=array_merge($ret,$subTypes);
+                                            break;;
+                                        default:
+                                            echo "Unsupported data structure type $dataType :".print_r($data,true);;
+                                                            
+                                    }
+                                }
                             }
+                            break;;
                         case 'object':
                             $subTypes=self::formSchemas([$data]);
 //                                 echo "subTypes=";print_r($subTypes);
@@ -148,21 +180,47 @@ class FJA {
     /*
     * Replace ['type']=>type,['id']->id on object in relationships
     */
-    public static function replaceRelationshipsObject($object) {
+    public static function replaceRelationshipsObject($object,$included=[]) {
         if (isset($object->relationships) && is_Array($object->relationships)) {
             foreach ($object->relationships as $relName=>$relationships) {
-                if (key_exists('data',$relationships) && key_exists('id',$relationships['data'])) {
-                    $subType=$relationships['data']['type'];
-                    $subId=$relationships['data']['id'];
-    //                 echo "subType=$subType subId=$subId\n";
-                    $modelClass="Models/$subType";
-                    \fja\FJA::autoload($modelClass);
-                    $schemaClass="Schemas/SchemaOf$subType";
-                    \fja\FJA::autoload($schemaClass);
-                    $object->relationships[$relName]['data']=new $subType($subId);
+//                 echo "replaceRelationshipsObject:: relName=$relName relationships=";print_r($relationships);
+                if (key_exists('data',$relationships)) {
+                    $datas=$relationships['data'];
+                    if (self::isAssoc($datas)) {
+                        $data=$datas;
+                        $subType=$data['type'];
+                        $subId=$data['id'];
+//                         $newObject=(key_exists($subId,$included)?$included[$subId]:new $subType($subId));
+                        if (key_exists($subId,$included)) {
+                            $newObject=self::replaceRelationshipsObject($included[$subId]);
+                        } else {
+                            $newObject=new $subType($subId);                              
+                        }
+                        $object->relationships[$relName]['data']=$newObject;
+        //                 echo "subType=$subType subId=$subId\n";
+    //                     $modelClass="Models/$subType";
+    //                     \fja\FJA::autoload($modelClass);
+    //                     $schemaClass="Schemas/SchemaOf$subType";
+    //                     \fja\FJA::autoload($schemaClass);
+                    } else {
+                        $relationships=[];
+                        foreach ($datas as $data) {
+                            $subType=$data['type'];
+                            $subId=$data['id'];
+                            if (key_exists($subId,$included)) {
+                                $newObject=self::replaceRelationshipsObject($included[$subId]);
+                            } else {
+                                $newObject=new $subType($subId);                              
+                            }
+                            $relationships[$relName]['data'][]=$newObject;                          
+                        }
+                        $object->relationships=$relationships;
+                    }
                 }
             }
         }
+//         echo "replaceRelationshipsObject:: included=";print_r($included);
+//         echo "replaceRelationshipsObject:: Object=";print_r($object);
         return $object;
     }
     

@@ -41,7 +41,7 @@ switch ($_SERVER["REQUEST_METHOD"]) {
         if (key_exists('id',$path) && trim($path['id'])) {
             \responce\Responce::sendErrorReply(['status'=>'400','title'=>"POST request contain id",'detail'=>"Create request contain id".$path['id']]);    
         }
-        $json=Post::addObject($path);
+        $json=Post::addObject($path,$baseURL);
         if ($json) {
             Responce::sendObjects($json,'201',["Location: $location"]);
         } else {
@@ -53,7 +53,7 @@ switch ($_SERVER["REQUEST_METHOD"]) {
         if (!key_exists('id',$path) || !trim($path['id'])) {
             \responce\Responce::sendErrorReply(['status'=>'400','title'=>"DELETE request does'nt contain id",'detail'=>"DELETE request does'nt contain id"]);    
         }
-         $json=Delete::deleteObject($path);       
+         $json=Delete::deleteObject($path,$baseURL);       
         if ($json) {
             Responce::sendObjects($json,'200');
         } else {
@@ -65,7 +65,7 @@ switch ($_SERVER["REQUEST_METHOD"]) {
         if (!key_exists('id',$path) || !trim($path['id'])) {
             \responce\Responce::sendErrorReply(['status'=>'400','title'=>"PATCH request does'nt contain id",'detail'=>"PATCH request does'nt contain id"]);    
         }
-        $json=Patch::updateObject($path);       
+        $json=Patch::updateObject($path,$baseURL);       
         if ($json) {
             Responce::sendObjects($json,'200');
         } else {
@@ -74,7 +74,7 @@ switch ($_SERVER["REQUEST_METHOD"]) {
         break;;
     case 'GET':    //Запрос объектов
 //         echo "Fetch object $request_uri<br>\n";
-        $json=Get::getObject($parsedRequest);        
+        $json=Get::getObject($parsedRequest,$baseURL);        
         Responce::sendObjects($json,'200');
         break;;
 }

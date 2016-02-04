@@ -37,6 +37,17 @@ $encoder = \Neomerx\JsonApi\Encoder\Encoder::instance([
 ], new \Neomerx\JsonApi\Encoder\EncoderOptions(JSON_PRETTY_PRINT, $baseURL));
 
 $clientGeneratedUUid=false;
+$лес1= Лес::instance(
+    'лес1',
+    [
+        'Название'=>'Беловежская Пуща',
+        'Площадь'=>222,
+        'Заповедник'=>false,
+        'ДатаПоследнегоОсмотра'=>'2015-11-23 13:44:16.616936'
+    ],
+    [
+    ]
+    );
 
 
 $берлога1=\Берлога::instance(
@@ -47,6 +58,7 @@ $берлога1=\Берлога::instance(
         'Заброшена'=>false,
     ],
     [
+        'ЛесРасположения'=>['data'=>$лес1],
     ]
     );
     
@@ -58,6 +70,7 @@ $берлога1=\Берлога::instance(
         'Заброшена'=>false,
     ],
     [
+        'ЛесРасположения'=>['data'=>$лес1],
     ]
     );
     
@@ -72,31 +85,29 @@ $медведь1= Медведь::instance(
     ],
     [
         'Берлоги' => ['data' => [$берлога1,$берлога2]],
+        'ЛесОбитания'=>['data'=>$лес1]
     ]
     );
     
 $includePaths=['Берлоги'];
 $encodingParameters = new EncodingParameters($includePaths,null);
 
-$body=$encoder->encodeData($медведь1,$encodingParameters);
-echo "медведь=\n";print_r(json_decode($body,true));
-
-
-exit;    
+// $body=$encoder->encodeData($медведь1,$encodingParameters);
+// echo "медведь=\n";print_r(json_decode($body,true));
     
 if ($clientGeneratedUUid) $медведь1->setId(\fja\FJA::uuid_gen());
-$reply=sendPOSTRequest($restClient,$encoder,"Медведь1","Медведи",$медведь1);
+$reply=sendPOSTRequest($restClient,$encoder,"Медведь1","Медведи",$медведь1,$encodingParameters);
 $id=\fja\FJA::getDataFromJson($reply)['id'];
 $медведь1->setId($id);
-echo "BEAR::медведь1=";print_r($медведь1); 
+// echo "BEAR::медведь1=";print_r($медведь1); 
 
 
 
 
-function sendPOSTRequest($restClient,$encoder,$title,$uri,$instance) {
-    $body=$encoder->encodeData($instance);
-//     echo "BEAR::Sent:" .  print_r(json_decode($body,true),true);
-    echo "BEAR::Sent:\n$body";
+function sendPOSTRequest($restClient,$encoder,$title,$uri,$instance,$encodingParameters) {
+    $body=$encoder->encodeData($instance,$encodingParameters);
+    echo "BEAR::Sent:" .  print_r(json_decode($body,true),true);
+//     echo "BEAR::Sent:\n$body";
     try {
         $reply=$restClient->request('POST',$uri, ['body'=>$body]);
     } catch (ClientException $e) {
@@ -117,6 +128,6 @@ function sendPOSTRequest($restClient,$encoder,$title,$uri,$instance) {
 //     echo "BEAR::Headers="; print_r($reply->getHeaders());
     $body=$reply->getBody();
     echo "BEAR::Body=$body\n";
-    echo "BEAR::BODY=".print_r(json_decode($body,true),true);
+    echo "BEAR::BODY=".print_r(json_decode(strstr($body,'{'),true),true);
     return $body;
 }

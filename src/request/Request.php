@@ -94,6 +94,14 @@ class Request {
     }
 
     
+    public static function includedToObjectsArray($postData) {
+        $ret=[];
+        if (key_exists('included',$postData)) {
+            $ret=\fja\FJA::includedToObjectsArray($postData['included']);
+        }
+        return $ret;
+    }
+    
     public static function dataToObject($postData) {
         if (!key_exists('data',$postData)) {
             sendErrorReply(['status'=>'400','title'=>'Missed field data in request']);
