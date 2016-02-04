@@ -1,9 +1,6 @@
 <?php
 use \fja\FJA;
-use \Neomerx\JsonApi\Encoder\Encoder;
-use \Neomerx\JsonApi\Encoder\EncoderOptions;
-use \Neomerx\JsonApi\Parameters\EncodingParameters;
-use \Neomerx\JsonApi\Schema\Link;
+
 
 use \request\Request;
 use \request\post\Post;
@@ -11,7 +8,6 @@ use \request\delete\Delete;
 use \request\patch\Patch;
 use \request\get\Get;
 use \responce\Responce;
-use storage\pdostore\Pdostore;
 
 header ("Content-type: text/html; charset=utf-8");
 require(__DIR__ . '/../../vendor/autoload.php');
@@ -35,12 +31,7 @@ if (!key_exists('collection',$path) || !trim($path['collection'])) {
         \responce\Responce::sendErrorReply(['status'=>'400','title'=>"Request does'nt contain collection",'detail'=>"Request does'nt contant collection"]);
 }
 
-$query=$parsedRequest['query'];
-$type=ListTypes::getTypeBySubUrl($path['collection']);
-if (!$type) {
-    \responce\Responce::sendErrorReply(['status'=>'400','title'=>"Unknown collection ". $path['collection']]);    
-}
-$path['type']=$type;
+
 // echo "Path=";print_r($path);
 
 
@@ -48,7 +39,7 @@ switch ($_SERVER["REQUEST_METHOD"]) {
     case 'POST':    //Создание объектов
 //         echo "Create object $request_uri<br>\n";
         if (key_exists('id',$path) && trim($path['id'])) {
-            \responce\Responce::sendErrorReply(['status'=>'400','title'=>"Create request contain id",'detail'=>"Create request contain id".$path['id']]);    
+            \responce\Responce::sendErrorReply(['status'=>'400','title'=>"POST request contain id",'detail'=>"Create request contain id".$path['id']]);    
         }
         $json=Post::addObject($path);
         if ($json) {
@@ -83,7 +74,7 @@ switch ($_SERVER["REQUEST_METHOD"]) {
         break;;
     case 'GET':    //Запрос объектов
 //         echo "Fetch object $request_uri<br>\n";
-        $json=Get::getObject($path,$query);        
+        $json=Get::getObject($parsedRequest);        
         Responce::sendObjects($json,'200');
         break;;
 }

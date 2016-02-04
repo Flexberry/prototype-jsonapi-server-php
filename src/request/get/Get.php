@@ -1,6 +1,11 @@
 <?php 
-
 namespace request\get;
+use \fja\FJA;
+use \storage\pdostore\Pdostore;
+use \Neomerx\JsonApi\Encoder\Encoder;
+use \Neomerx\JsonApi\Encoder\EncoderOptions;
+use \Neomerx\JsonApi\Parameters\EncodingParameters;
+use \Neomerx\JsonApi\Schema\Link;
 /*
  *  Class support GET request
  */
@@ -10,8 +15,11 @@ class Get extends \request\Request {
      * 
      * @return string or false
      */
-     public static function getObject($path,$query) {
+     public static function getObject($parsedRequest) {
+        $path=$parsedRequest['path'];
+        $query=$parsedRequest['query'];
         $json=false;
+        $type=$path['type'];
         if (key_exists('id',$path)) {   // get one object
             $id=$path['id'];
             $objects=Pdostore::getObjects($type,$id,$query);

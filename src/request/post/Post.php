@@ -1,5 +1,11 @@
 <?php 
 namespace request\post;
+use \fja\FJA;
+use \storage\pdostore\Pdostore;
+use \Neomerx\JsonApi\Encoder\Encoder;
+use \Neomerx\JsonApi\Encoder\EncoderOptions;
+use \Neomerx\JsonApi\Parameters\EncodingParameters;
+use \Neomerx\JsonApi\Schema\Link;
 /*
  *  Class support POST request
  */

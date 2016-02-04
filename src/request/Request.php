@@ -1,5 +1,6 @@
 <?php 
 namespace request;
+use \responce\Responce;
 /*
  *  Class support POST request
  */
@@ -29,6 +30,11 @@ class Request {
         while (($nPath=str_replace('//','/',$location))!=$location) $location=$nPath;   //replace // to / in path
         $steps=explode('/',$location);
         $retPath['collection']=$steps[0];
+        $type=\ListTypes::getTypeBySubUrl($retPath['collection']);
+        if (!$type) {
+            Responce::sendErrorReply(['status'=>'400','title'=>"Unknown collection ". $retPath['collection']]);    
+        }
+        $retPath['type']=$type;
         if (count($steps)>1) {
             $retPath['id']=$steps[1];
             if (count($steps)>2) {
