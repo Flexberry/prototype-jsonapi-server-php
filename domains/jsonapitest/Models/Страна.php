@@ -10,8 +10,8 @@ class Страна extends Model {
     public static $relationshipList=[
         ];
         
-    public static $backRelationshipsList=[
-        'Леса'=>'Лес[]',
+    public static $reverseRelationshipsList=[
+        'Лес'=>'Леса[]',
         ];
     
 }

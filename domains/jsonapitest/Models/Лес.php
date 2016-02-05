@@ -14,9 +14,9 @@ class Лес extends Model {
         'Страна'=>'Страна'
         ];
 
-    public static $backRelationshipsList=[
-        'Берлоги'=>'Берлога[]',
-        'Медведи'=>'Медведь[]'
+    public static $reverseRelationshipsList=[
+        'Берлога'=>'Берлоги[]',
+        'Медведь'=>'Медведи[]'
         ];
    
 }

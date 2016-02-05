@@ -43,7 +43,10 @@ class Post extends \request\Request {
                 $LinkRelName=$includeObject->getRelationNameByType($classType);
                 $includeObject->setRelationship($LinkRelName,$classType,$primaryKey);
                 $includeObjectClass=get_class($includeObject);
-                $includePaths[$includeObjectClass]=true;
+                $reverseRelName=$object->getInverseRelationshipName($includeObjectClass);
+                if ($reverseRelName) {
+                    $includePaths[$reverseRelName]=true;
+                }
                 $primaryKeyName=$includeObject->primaryKeyName;
                 $includedPrimaryKey=\fja\FJA::uuid_gen();   //Primary key generation
                 $oldId=$includeObject->getId();
@@ -58,7 +61,7 @@ class Post extends \request\Request {
 //             echo "POST::schemas=";print_r($schemas);
             $encoder = Encoder::instance($schemas, new EncoderOptions(0, $baseURL));
             $includePaths=array_keys($includePaths);
-            $includePaths=['Берлоги'];
+//             $includePaths=['Берлоги'];
             $encodingParameters = new EncodingParameters($includePaths,null);
 //             echo "encodingParameters=";print_r($encodingParameters);
             $json=$encoder->encodeData($object,$encodingParameters);

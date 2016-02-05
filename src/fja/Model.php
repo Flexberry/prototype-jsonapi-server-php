@@ -75,5 +75,29 @@ class Model {
         return '';
     }
 
+    /*
+     * Get Inverse relationship Name for  the specified class
+     */
+    public static function getInverseRelationshipName($relName) {
+        $ret=false;
+        if (isset(static::$reverseRelationshipsList) && key_exists($relName,static::$reverseRelationshipsList)) {
+            $ret=static::$reverseRelationshipsList[$relName];
+            if (substr($ret,-2)=='[]') $ret=substr($ret,0,-2);  //Remove [] if exists
+        }
+        return $ret;
+    }
+    
+    /*
+     * Is Inverse relationship Name array or not
+     */
+    public static function isMultiRelationship($relName) {
+       $ret=false;
+        if (isset(static::$reverseRelationshipsList) && key_exists($relName,static::$reverseRelationshipsList)) {
+            $ret=static::$reverseRelationshipsList[$relName];
+            if (substr($ret,-2)=='[]') $ret=true;
+        }
+        return $ret;    
+    }
+   
 
 }
