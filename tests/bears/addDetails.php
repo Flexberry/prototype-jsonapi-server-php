@@ -89,7 +89,7 @@ $медведь1= Медведь::instance(
     ]
     );
     
-$includePaths=['Берлоги'];
+$includePaths=['Берлоги','ЛесОбитания','Берлоги.ЛесРасположения'];
 $encodingParameters = new EncodingParameters($includePaths,null);
 
 // $body=$encoder->encodeData($медведь1,$encodingParameters);

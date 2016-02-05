@@ -38,6 +38,10 @@ class Model {
         return $ret;
     }
     
+    public function getRelationships() {
+        return $this->relationships;
+    }
+    
     public function setRelationships($relationships) {
         $this->relationships=$relationships;
     }
@@ -68,36 +72,73 @@ class Model {
     
     public static function getRelationNameByType($type) {
         foreach (static::$relationshipList as $relName=>$relType) {
-            if ($relType==$relName) {
+            if ($relType==$type) {
+                echo "$relType==$relName\n";
                 return $relType;
             }
         }
-        return '';
+        return false;
     }
 
     /*
      * Get Inverse relationship Name for  the specified class
      */
-    public static function getInverseRelationshipName($relName) {
+    public static function getInverseRelationshipName($type) {
         $ret=false;
-        if (isset(static::$reverseRelationshipsList) && key_exists($relName,static::$reverseRelationshipsList)) {
-            $ret=static::$reverseRelationshipsList[$relName];
-            if (substr($ret,-2)=='[]') $ret=substr($ret,0,-2);  //Remove [] if exists
-        }
+        if (isset(static::$reverseRelationshipsList) && key_exists($type,static::$reverseRelationshipsList)) {
+            $ret=static::$reverseRelationshipsList[$type];
+         }
         return $ret;
     }
+    
+    
+    public static function getRelationshipName($fullName) {
+        $ret=$fullName;
+        $suffix=substr($ret,-2);
+        if ($suffix=='[]' || $suffix=='()') $ret=substr($ret,0,-2);  //Remove [] if exists
+        return $ret;
+    }
+    
+    public static function isRelationArray($fullName) {
+        $ret=$fullName;
+        $suffix=substr($ret,-2);
+        $ret= ($suffix=='[]' || $suffix=='()'); 
+        return $ret;
+    }
+    
+    public static function isRelationDetais($fullName) {
+        $ret=$fullName;
+        $suffix=substr($ret,-2);
+        $ret= ($suffix=='()'); 
+        return $ret;
+    }
+    
     
     /*
      * Is Inverse relationship Name array or not
      */
-    public static function isMultiRelationship($relName) {
+    public static function isMultiRelationship($type) {
        $ret=false;
-        if (isset(static::$reverseRelationshipsList) && key_exists($relName,static::$reverseRelationshipsList)) {
-            $ret=static::$reverseRelationshipsList[$relName];
-            if (substr($ret,-2)=='[]') $ret=true;
+        if (isset(static::$reverseRelationshipsList) && key_exists($type,static::$reverseRelationshipsList)) {
+            $ret=static::$reverseRelationshipsList[$type];
+            if ($suffix=='[]' || $suffix=='()') $ret=true;
         }
         return $ret;    
     }
    
+     /*
+     *  List Links Names for specified type
+     */
+    public static function ListLinksOfType($type) {
+        $ret=[];
+        foreach (static::$relationshipList as $relName=>$relType) {
+            if ($relType==$type) $ret[]=$relName;
+        }
+        if ($inverseRelName=self::getInverseRelationshipName($type))  {
+            $ret[]=self::getRelationshipName($inverseRelName);
+        }
+        return $ret;
+    }  
 
+    
 }
