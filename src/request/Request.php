@@ -1,6 +1,8 @@
 <?php 
 namespace request;
 use \responce\Responce;
+use \storage\pdostore\Pdostore;
+
 /*
  *  Class support POST request
  */
@@ -119,6 +121,19 @@ class Request {
     }
 
     /*
+     * Set order linked List
+     * Dummy at first release
+     */
+    private static function setOrderList($included) {
+        $order=[];
+        foreach ($included as $id=>$includeObject) {
+            $order[]=$id;
+        }
+        return $order;
+    }
+    
+    
+    /*
      * Set relationships  in included Objects
      * $included - array included objects
      * $className - className Objects involded included objects
@@ -131,25 +146,30 @@ class Request {
         }
         $includePaths=[];
         $included=\fja\FJA::includedToObjectsArray($included);
-        echo "AddObject::INCLUDED=";print_r($included);
+//         echo "AddObject::INCLUDED=";print_r($included);
         foreach ($included as $id=>$includeObject) {
             $includedPrimaryKey=\fja\FJA::uuid_gen();   //Primary key generation
             $includeObject->setId($includedPrimaryKey);
-        }        
-        foreach ($included as $id=>$includeObject) {
+        }
+        //Reordering list according reference order
+        $order=self::setOrderList($included);  //Set order linked List
+        //Cross-relation links settings
+        foreach ($order as $id) {
+//         foreach ($included as $id=>$includeObject) {
+            $includeObject=$included[$id];
             $includeObjectType=get_class($includeObject);
             if ($containerObject) {
                 $LinkRelName=$includeObject->getRelationNameByType($classType); //Get Relation Name of included object, that points to $classType
                 if ($LinkRelName) {
                     $includeObject->setRelationship($LinkRelName,$classType,$primaryKey);
-                    echo "setRelationship($includeObjectType -> $LinkRelName,$classType,$primaryKey)\n";
+//                     echo "setRelationship($includeObjectType -> $LinkRelName,$classType,$primaryKey)\n";
                 }
                 $includePaths=array_merge($includePaths,$containerObject->ListLinksOfType($includeObjectType));
             }
-            echo "includeObjectType=$includeObjectType includePaths=";print_r($includePaths);
+//             echo "includeObjectType=$includeObjectType includePaths=";print_r($includePaths);
             if (isset($includeObject->relationships) && is_array($includeObject->relationships))  { //Set inverse Relationsships in referenced included objects
                 foreach ($includeObject->relationships as $relName=>$relDesc) {
-                    echo "setRelationsInIncludedObjects::relName=$relName $relDesc=";print_r($relDesc);
+//                     echo "setRelationsInIncludedObjects::relName=$relName $relDesc=";print_r($relDesc);
                     if (!is_array($relDesc) || !key_exists('data',$relDesc)) continue; 
                     if (!is_array($relDesc['data'])) continue;
                     if (key_exists('type',$relDesc['data'])) {
@@ -158,11 +178,11 @@ class Request {
                     if (key_exists('id',$relDesc['data'])) {
                         $id=$relDesc['data']['id'];
                     } else continue;
-                    if (key_exists($id,$included)) {    //In inlude tHere exists objec, that referenced by this 
+                    if (key_exists($id,$included)) {    //In include there exists object, that referenced by this 
                         $referencedObject=$included[$id];
                         $includeObject->setRelationship($relName,$type,$referencedObject->getId());              
                         $invercedRelName=$referencedObject->getInverseRelationshipName($includeObjectType);
-                        echo "invercedRelName=$invercedRelName referencedObject=";print_r($referencedObject);
+//                         echo "invercedRelName=$invercedRelName referencedObject=";print_r($referencedObject);
                         if ($invercedRelName) {
                             $invRelname=\fja\Model::getRelationshipName($invercedRelName);
                             $data=['type'=>$includeObjectType,'id'=>$includeObject->getId()];
@@ -178,7 +198,7 @@ class Request {
                     }
                 }
             }
-//                 Pdostore::addObjectToDb($includeObject);
+            Pdostore::addObjectToDb($includeObject);
         }
         return [$included,$includePaths];
     }

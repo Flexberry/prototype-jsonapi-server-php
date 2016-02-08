@@ -33,7 +33,7 @@ class Post extends \request\Request {
         } else {
             $primaryKey=$object->attributes[$primaryKeyName];
         }
-//         Pdostore::addObjectToDb($object);
+        Pdostore::addObjectToDb($object);
         $included=[];
         if (key_exists('included',$body)) {
             $changed=true;
@@ -60,7 +60,7 @@ class Post extends \request\Request {
         }
         if ($changed) {
             echo "AddObject::INCLUDED=";print_r($included);
-            echo "POST Object Before:";print_r($object);
+//             echo "POST Object Before:";print_r($object);
             $object=FJA::replaceRelationshipsObject($object,$included);        
             echo "POST Object Changed:";print_r($object);
             $schemas=FJA::formSchema($object);

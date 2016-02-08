@@ -25,7 +25,7 @@ class Pdostore {
     }
 
     public static function updateObject($object,$id) {
-         echo "object=".print_r($object,true);
+//          echo "object=".print_r($object,true);
         $className=get_class($object);
         $PrimaryKeyName=$className::$PrimaryKeyName;
         $updateCmd="UPDATE $className SET ";
@@ -40,7 +40,7 @@ class Pdostore {
         }
         $updateCmd.= implode(', ',$set);
         $updateCmd.=" WHERE $PrimaryKeyName = '$id'";
-        echo "updateCmd=$updateCmd\n";
+//         echo "updateCmd=$updateCmd\n";
        $dbh=self::connectDb();
     //     echo "DBH=".print_r($dbh,true);
         $count = $dbh->exec($updateCmd);
@@ -73,13 +73,18 @@ class Pdostore {
             }
             $fieldValues[]=$value;
         }
+        $ReverseRelationshipsList=$className::getReverseRelationshipsList();
+//         echo "Relationships==";print_r($object->relationships);
+//         echo "ReverseRelationshipsList==";print_r($ReverseRelationshipsList);
         foreach ($object->relationships as $name=>$value) {
+            if (key_exists($name,$ReverseRelationshipsList)) continue;
+            $id=$value['data']['id'];
             $fieldNames[]='"'.$name.'"';
-            $fieldValues[]="'".$value['data']['id']."'";        
+            $fieldValues[]=($id?"'$id'":'NULL');        
         }    
         
         $insertCmd.='('. implode(',',$fieldNames) . ') VALUES (' . implode(',',$fieldValues) . ')';
-    //     echo "insertCmd=$insertCmd\n";
+//         echo "insertCmd=$insertCmd\n";
 
         $dbh=self::connectDb();
     //     echo "DBH=".print_r($dbh,true);
@@ -89,7 +94,7 @@ class Pdostore {
             $driverCode=(key_exists(1,$errorInfo)?$errorInfo[1]:'');
             $driverMessage=(key_exists(2,$errorInfo)?$errorInfo[2]:'');
             $detail="$errorCode/$driverCode: $driverMessage";
-            echo $detail;
+//             echo $detail;
             \responce\Responce::sendErrorReply(['status'=>'403','title'=>'Object not created, database error','detail'=>$detail]);
         }
     //     echo "Inserted $count records\n";

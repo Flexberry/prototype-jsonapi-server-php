@@ -62,6 +62,7 @@ $bears=[];
 foreach ($СписокМедведей['data'] as $медведь) {
     $id=$медведь['id'];
     $bears[$id]=$медведь;
+    if (!key_exists('relationships',$медведь)) continue;
     if (key_exists('Папа',$медведь['relationships'])) {
         $parendId=$медведь['relationships']['Папа']['data']['id'];
         echo "Папа $id ->  $parendId\n";
@@ -82,6 +83,10 @@ foreach ($children as  $parentId=>$childrenIds) {
         }
     }
     deleteМедведь($restClient,$bears[$parentId]);
+}
+
+foreach ($bears as $медведь) {
+    deleteМедведь($restClient,$медведь);
 }
 
 

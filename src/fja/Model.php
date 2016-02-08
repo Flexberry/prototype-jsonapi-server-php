@@ -121,10 +121,27 @@ class Model {
        $ret=false;
         if (isset(static::$reverseRelationshipsList) && key_exists($type,static::$reverseRelationshipsList)) {
             $ret=static::$reverseRelationshipsList[$type];
+            $suffix=substr($ret,-2);
             if ($suffix=='[]' || $suffix=='()') $ret=true;
         }
         return $ret;    
     }
+
+    /*
+     * Get keyed list of Reverse Relationships $ReverseRelationships=>true,
+     */
+    public static function getReverseRelationshipsList() {
+        $ret=[];
+        if (isset(static::$reverseRelationshipsList)) {
+            foreach (static::$reverseRelationshipsList as $reverseRelationshipType=>$reverseRelationshipName) {
+                $suffix=substr($reverseRelationshipName,-2);
+             if ($suffix=='[]' || $suffix=='()') $reverseRelationshipName=substr($reverseRelationshipName,0,-2);
+             $ret[$reverseRelationshipName]=true;
+            }
+        }
+        return $ret;
+    }
+   
    
      /*
      *  List Links Names for specified type
