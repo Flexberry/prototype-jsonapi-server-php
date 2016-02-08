@@ -73,7 +73,7 @@ class Model {
     public static function getRelationNameByType($type) {
         foreach (static::$relationshipList as $relName=>$relType) {
             if ($relType==$type) {
-                echo "$relType==$relName\n";
+//                 echo "$relType==$relName\n";
                 return $relType;
             }
         }

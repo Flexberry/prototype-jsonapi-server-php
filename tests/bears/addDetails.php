@@ -106,8 +106,10 @@ $медведь1->setId($id);
 
 function sendPOSTRequest($restClient,$encoder,$title,$uri,$instance,$encodingParameters) {
     $body=$encoder->encodeData($instance,$encodingParameters);
-    echo "BEAR::Sent:" .  print_r(json_decode($body,true),true);
-//     echo "BEAR::Sent:\n$body";
+    echo "BEAR::Sent:\n$body\n" ;
+    $str = preg_replace_callback('/\\\\u([0-9a-fA-F]{4})/', function ($match) {return mb_convert_encoding(pack('H*', $match[1]), 'UTF-8', 'UTF-16BE');}, $body);
+//     echo "BEAR::Sent:" .  print_r(json_decode($body,true),true);
+    echo "BEAR::Sent:\n$str\n";exit;
     try {
         $reply=$restClient->request('POST',$uri, ['body'=>$body]);
     } catch (ClientException $e) {
@@ -117,7 +119,7 @@ function sendPOSTRequest($restClient,$encoder,$title,$uri,$instance,$encodingPar
             echo "StatusCode=".$response->getStatusCode()."\n";
             $body=$response->getBody();
             $jsonPos=strpos($body,'{');
-            echo "Carbage=".substr($body,0,$jsonPos);;
+            echo "Carbage=".substr($body,/*0,*/$jsonPos);;
             $content=json_decode(strstr($body,'{'),true);
             echo "\nShift=$jsonPos\nContent=";print_r($content);
         }

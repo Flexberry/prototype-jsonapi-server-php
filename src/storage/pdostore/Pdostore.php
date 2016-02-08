@@ -128,7 +128,7 @@ class Pdostore {
                     $driverMessage=(key_exists(2,$errorInfo)?$errorInfo[2]:'');
                     $detail="$errorCode/$driverCode: $driverMessage";
 //                     echo "$errorCode=". $dbh->errorCode() . " errorInfo=". print_r($errorInfo,true) . "<br>\n";
-                    \responce\Responce::sendErrorReply(['status'=>'400','title'=>'Objects are not available','detail'=>$detail]);
+                    \responce\Responce::sendErrorReply(['status'=>'404','title'=>'Objects are not available','detail'=>$detail]);
             }
         }
     }
@@ -138,7 +138,7 @@ class Pdostore {
         $PrimaryKeyName=$modelClassName::$PrimaryKeyName;
         $dbh=self::connectDb();
         $deleteCmd="DELETE FROM $modelClassName WHERE $PrimaryKeyName = '$id'";
-//         echo "deleteCmd=$deleteCmd\n";
+        echo "deleteCmd=$deleteCmd\n";
         $reply = $dbh->query($deleteCmd);
         $ErrorCode=$dbh->errorCode();
         $errorCode=intval($ErrorCode);
@@ -150,13 +150,13 @@ class Pdostore {
                     $driverMessage=(key_exists(2,$errorInfo)?$errorInfo[2]:'');
                     $detail="$errorCode/$driverCode: $driverMessage";
 //                     echo "$errorCode=". $dbh->errorCode() . " errorInfo=". print_r($errorInfo,true) . "<br>\n";
-                    \responce\Responce::sendErrorReply(['status'=>'400','title'=>'Objects are not available','detail'=>$detail]);
+                    \responce\Responce::sendErrorReply(['status'=>'404','title'=>'Objects are not available','detail'=>$detail]);
             }
         }
         $count=$reply->rowCount();
 //         echo "ERRORCODE=$errorCode count=$count reply=\n";print_r($reply);
         if ($count==0) {
-            \responce\Responce::sendErrorReply(['status'=>'400','title'=>"Removed object with id=$id does'nt  exist"]);
+            \responce\Responce::sendErrorReply(['status'=>'404','title'=>"Removed object with id=$id does'nt  exist"]);
         }
         
     }
