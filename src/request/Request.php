@@ -105,15 +105,15 @@ class Request {
     }
     
     public static function dataToObject($postData) {
-        if (!key_exists('data',$postData)) {
-            sendErrorReply(['status'=>'400','title'=>'Missed field data in request']);
+        if (!is_array($postData) || !key_exists('data',$postData)) {
+            Responce::sendErrorReply(['status'=>'400','title'=>'Missed field data in request','detail'=>json_encode($postData)]);
         }
         $data=$postData['data'];
         if (!is_array($data)) {
-            sendErrorReply(['status'=>'400','title'=>'Incorrect data  in request']);
+            Responce::sendErrorReply(['status'=>'400','title'=>'Incorrect data  in request']);
         }
         if (!\fja\FJA::isAssoc($data)) {
-            sendErrorReply(['status'=>'400','title'=>'Several objects in request']);
+            Responce::sendErrorReply(['status'=>'400','title'=>'Several objects in request']);
         } 
     //     echo "datas=";print_r($datas);
         $ret=\fja\FJA::dataToObject($data);    

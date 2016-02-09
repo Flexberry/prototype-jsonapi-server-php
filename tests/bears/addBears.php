@@ -1,5 +1,11 @@
 <?php
 use GuzzleHttp\Exception\ClientException;
+use \fja\FJA;
+use \Neomerx\JsonApi\Encoder\Encoder;
+use \Neomerx\JsonApi\Encoder\EncoderOptions;
+use \Neomerx\JsonApi\Parameters\EncodingParameters;
+use \Neomerx\JsonApi\Schema\Link;
+
 require_once(__DIR__ . '/../../vendor/autoload.php');
 require_once(__DIR__ . '/../../src/fja/FJA.php');
 echo "BEAR::" . __DIR__ . "\n";
@@ -38,10 +44,10 @@ $страна1= Страна::instance(
         'Название'=>'Белоруссия',
     ]
     );
-if ($clientGeneratedUUid) $страна1->setId(\fja\FJA::uuid_gen());
+if ($clientGeneratedUUid || true) $страна1->setId(\fja\FJA::uuid_gen());
 $reply=sendPOSTRequest($restClient,$encoder,"Страна","Страны",$страна1);
-$id=\fja\FJA::getDataFromJson($reply)['id'];
-$страна1->setId($id);
+// $id=\fja\FJA::getDataFromJson($reply)['id'];
+// $страна1->setId($id);
 echo "BEAR::страна1=";print_r($страна1);
 
 
@@ -58,10 +64,14 @@ $лес1= Лес::instance(
     ]
     );
 if ($clientGeneratedUUid) $лес1->setId(\fja\FJA::uuid_gen());
+
+$includePaths=['Страны'];
+$encodingParameters = new EncodingParameters($includePaths,null);
+
 $reply=sendPOSTRequest($restClient,$encoder,"Лес и страна","Леса",$лес1);
 $id=\fja\FJA::getDataFromJson($reply)['id'];
-$лес1->setId($id);
-echo "BEAR::Лес1=";print_r($лес1); 
+$лес1->setId($id); 
+// echo "BEAR::Лес1=";print_r($лес1); 
     
 $медведь1= Медведь::instance(
     null,
@@ -98,7 +108,7 @@ $медведь2=  Медведь::instance(
 if ($clientGeneratedUUid) $медведь2->setId(\fja\FJA::uuid_gen());
 $reply=sendPOSTRequest($restClient,$encoder,"Медведь2","Медведи",$медведь2);
 $id=\fja\FJA::getDataFromJson($reply)['id'];
-$медведь2->setId($id);
+$медведь2->setId($id); exit;
 echo "BEAR::медведь2=";print_r($медведь2); 
 
 $медведь3=  Медведь::instance(
@@ -229,8 +239,9 @@ echo "BEAR::берлога4=";print_r($берлога4);
 
 function sendPOSTRequest($restClient,$encoder,$title,$uri,$instance) {
     $body=$encoder->encodeData($instance);
-//     echo "BEAR::Sent:" .  print_r(json_decode($body,true),true);
-    echo "BEAR::Sent:\n$body";
+    $str = preg_replace_callback('/\\\\u([0-9a-fA-F]{4})/', function ($match) {return mb_convert_encoding(pack('H*', $match[1]), 'UTF-8', 'UTF-16BE');}, $body);
+    echo "BEAR::Sent:\n$str\n";
+//    echo "BEAR::Sent:\n$body";
     try {
         $reply=$restClient->request('POST',$uri, ['body'=>$body]);
     } catch (ClientException $e) {

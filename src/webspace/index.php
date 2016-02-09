@@ -43,6 +43,8 @@ switch ($_SERVER["REQUEST_METHOD"]) {
         }
         $json=Post::addObject($path,$baseURL);
         if ($json) {
+            $objectTree=json_decode($json,true);
+            $location=$objectTree['data']['links']['self'];
             Responce::sendObjects($json,'201',["Location: $location"]);
         } else {
             Responce::sendNoContent();            

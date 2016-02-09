@@ -51,8 +51,6 @@ class Post extends \request\Request {
             $encodingParameters = new EncodingParameters($includePaths,null);
 //             echo "encodingParameters=";print_r($encodingParameters);
             $json=$encoder->encodeData($object,$encodingParameters);
-//             $objectTree=json_decode($json,true);
-//             $location=$objectTree['data']['links']['self'];
         }
         return $json;
      }
