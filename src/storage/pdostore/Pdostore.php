@@ -6,17 +6,22 @@ namespace storage\pdostore;
 
 class Pdostore {
 
-    static $selectedObjects=[];
+	static $database='flexberry-ember-demo';
+	static $selectedObjects=[];
     static $includePaths=[];
     static $sort;
     static $page;
     static $total;
+    
+    public static function setDomain($domain) {
+    	self:$database=str_replace('-','_',$domain);
+    }
 
     public static function connectDb() {
 //         $dsn = 'pgsql:host=10.130.5.119;port=5432;dbname=JsonApiTest;';
 //         $user = 'flexberry_orm_tester';
 //        $password = 'sa3dfE';
-        $dsn = 'pgsql:host=127.0.0.1;port=5432;dbname=demo;';
+        $dsn = 'pgsql:host=127.0.0.1;port=5432;dbname='. self:$database .';';
         $user = 'demo';
         $password = 'demo';
         try {
@@ -117,7 +122,8 @@ class Pdostore {
         }
         $PrimaryKeyName=$modelClassName::$PrimaryKeyName;
         $dbh=self::connectDb();
-        $updateCmd="UPDATE $modelClassName SET $relationship = null WHERE $PrimaryKeyName = '$id'";
+        $tableName=$modelClassName::getTableName();
+        $updateCmd="UPDATE $tableName SET $relationship = null WHERE $PrimaryKeyName = '$id'";
 //         echo "updateCmd=$updateCmd\n";
         $reply = $dbh->query($updateCmd);
         $ErrorCode=$dbh->errorCode();
@@ -140,7 +146,8 @@ class Pdostore {
 //         echo "Delete object  $collection/$id\n";
         $PrimaryKeyName=$modelClassName::$PrimaryKeyName;
         $dbh=self::connectDb();
-        $deleteCmd="DELETE FROM $modelClassName WHERE $PrimaryKeyName = '$id'";
+        $tableName=$modelClassName::getTableName();
+        $deleteCmd="DELETE FROM $tableName WHERE $PrimaryKeyName = '$id'";
         echo "deleteCmd=$deleteCmd\n";
         $reply = $dbh->query($deleteCmd);
         $ErrorCode=$dbh->errorCode();
@@ -306,8 +313,5 @@ class Pdostore {
         }
         return $objects;
     }
-
-
-    
     
 }

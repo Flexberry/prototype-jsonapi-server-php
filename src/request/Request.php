@@ -94,7 +94,7 @@ class Request {
         if (key_exists('filter',$Query)) {
             $retQuery['filter']=$Query['filter'];
         }
-        $ret=['path'=>$retPath,'query'=>$retQuery,'location'=>"/$domain/$location"];
+        $ret=['path'=>$retPath,'query'=>$retQuery,'location'=>"/$domain/$location",'domain'=>$domain];
         return $ret;       
     }
 
