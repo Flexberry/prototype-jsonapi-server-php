@@ -6,7 +6,7 @@ namespace storage\pdostore;
 
 class Pdostore {
 
-	static $database='flexberry-ember-demo';
+	static $database='flexberry_ember_demo';
 	static $selectedObjects=[];
     static $includePaths=[];
     static $sort;
@@ -21,7 +21,7 @@ class Pdostore {
 //         $dsn = 'pgsql:host=10.130.5.119;port=5432;dbname=JsonApiTest;';
 //         $user = 'flexberry_orm_tester';
 //        $password = 'sa3dfE';
-        $dsn = 'pgsql:host=127.0.0.1;port=5432;dbname='. self:$database .';';
+        $dsn = 'pgsql:host=127.0.0.1;port=5432;dbname='. self::$database .';';
         $user = 'demo';
         $password = 'demo';
         try {
