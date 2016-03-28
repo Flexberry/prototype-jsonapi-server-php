@@ -1,14 +1,7 @@
 <?php 
+namespace fja;
 
 class ListTypes {
-
-static $listTypes= [
-    'Берлога',
-    'Блоха',
-    'Лес',
-    'Медведь',
-    'Страна'
-    ];
 
     /* Get type of Class by subUrl 
      * @param string subUrl - url for collection retrive
@@ -17,7 +10,8 @@ static $listTypes= [
      */
     public static function getTypeBySubUrl($subUrl) {
         $subUrl=trim($subUrl,'/');
-        foreach (self::$listTypes as $type) {
+        $subUrl=str_replace('-','_',$subUrl);
+        foreach (static::$listTypes as $type) {
             $schemaClassName='SchemaOf'.$type;
             $schemaSubUrl=isset($schemaClassName::$SelfSubUrl)?trim($schemaClassName::$SelfSubUrl,'/'):'';
 //             echo "type=$type $subUrl==$schemaSubUrl<br>\n";

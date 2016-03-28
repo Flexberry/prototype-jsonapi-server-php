@@ -27,17 +27,18 @@ class Request {
     static public function urlParse($request_uri) {
         while (substr($request_uri,0,1)=='/') $request_uri=substr($request_uri,1);
         $parsed=parse_url($request_uri);
-//         echo "<pre>parsed=";print_r($parsed);echo "</pre>";exit;
+//         echo "<pre>parsed=";print_r($parsed);echo "</pre>";
         $location=trim(urldecode($parsed['path']),'/');   
         $query=key_exists('query',$parsed)?urldecode($parsed['query']):'';  
         while (($nPath=str_replace('//','/',$location))!=$location) $location=$nPath;   //replace // to / in path
         $steps=explode('/',$location);
+//         echo "<pre>steps=";print_r($steps);echo "</pre>";
         $retPath['collection']=$steps[0];
-        $type=\ListTypes::getTypeBySubUrl($retPath['collection']);
-
+        $type=\ListDomainTypes::getTypeBySubUrl($retPath['collection']);
         if (!$type) {
             Responce::sendErrorReply(['status'=>'400','title'=>"Unknown collection ". $retPath['collection']]);    
         }
+        echo "<pre>type=";print_r($type);echo "</pre>";;
         $retPath['type']=$type;
         if (count($steps)>1) {
             $retPath['id']=$steps[1];

@@ -25,7 +25,7 @@ if (!is_dir($schemasDir)) {
 	mkdir($schemasDir,0755);
 }
 
-
+$listDomainTypesFile="$domainDir/ListDomainTypes.php";
 
 // class Берлога extends Model {
 //     public static $PrimaryKeyName='primarykey';
@@ -42,13 +42,15 @@ if (!is_dir($schemasDir)) {
 // }
 
 $fd=dir($modelDir);
+$listModels=[];
 while ($entry=$fd->read()) {
 	if (substr($entry,-5)!='.json') continue;
 	$file="$modelDir/$entry";
 	$modelName=substr($entry,0,-5);
 	$phoModelName=str_replace('-','_',$modelName);
-	$classFile="$modelsDir/${modelName}.php";
-	$schemasFile="$schemasDir/${modelName}.php";
+	$listModels[]="'$phoModelName'";
+	$classFile="$modelsDir/${phoModelName}.php";
+	$schemasFile="$schemasDir/SchemaOf${phoModelName}.php";
 	$fp=fopen($file,'r');
 	echo "domain=$domain modelName=$modelName\n";
 	$str=fread($fp,filesize($file));
@@ -97,13 +99,17 @@ while ($entry=$fd->read()) {
 	$phpSchemasCode="<?php\nuse fja\Schema;class SchemaOf$phoModelName extends Schema {\n";
 	$phpSchemasCode.="\tpublic static \$IsShowSelfInIncluded=true;\n";
 	$phpSchemasCode.="\tpublic static \$ResourceType='$phoModelName';\n";
-	$phpSchemasCode.="\tpublic static \$SelfSubUrl='/$phoModelName/';\n";
+	$phpSchemasCode.="\tpublic static \$SelfSubUrl='/${phoModelName}s/';\n";
 	$phpSchemasCode.="}\n";
 	
 	$fpSchemas=fopen($schemasFile,'w');
 	fwrite($fpSchemas,$phpSchemasCode);
-	fclose($fpSchemas);
-
-	
-	
+	fclose($fpSchemas);	
 }
+
+$phpListDomainTypes="<?php\nuse \\fja\\ListTypes;\nclass ListDomainTypes  extends ListTypes {\n\t public static \$listTypes= [\n\t" .
+	implode(",\n\t\t",$listModels) . 
+	"\n\t];\n}\n";
+$fpListDomainTypes=fopen($listDomainTypesFile,'w');
+fwrite($fpListDomainTypes,$phpListDomainTypes);
+fclose($fpListDomainTypes);	

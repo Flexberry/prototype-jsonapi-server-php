@@ -43,8 +43,8 @@ class FJA {
             $className=$path[0];
             $classFile="$className.php";
             $found=false;
-            if ($className=='ListTypes') {
-                $listTypesFile=self::$domainIncludeDir."/ListTypes.php";
+            if ($className=='ListDomainTypes') {
+                $listTypesFile=self::$domainIncludeDir."/ListDomainTypes.php";
                 include_once($listTypesFile);
             } elseif (substr($className,0,8)=='SchemaOf') {   //Subclass of fja\Schema
                 $schemaClassFile=self::$schemasIncludeDir."/$classFile";

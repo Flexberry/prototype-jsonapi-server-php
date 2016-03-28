@@ -22,7 +22,7 @@ $request_uri=implode('/',$path);
 $href=$baseURL.urldecode($request_uri);
 // echo "<pre>domain=$domain\nrequest_uri=$request_uri\nhref=$href</pre>";
 $parsedRequest=Request::urlParse($request_uri);
-// echo "<pre>parsedRequest=";print_r($parsedRequest);echo "</pre>";exit;
+echo "<pre>parsedRequest=";print_r($parsedRequest);echo "</pre>";exit;
 $path=$parsedRequest['path'];
 if (!key_exists('collection',$path) || !trim($path['collection'])) {
         \responce\Responce::sendErrorReply(['status'=>'400','title'=>"Request does'nt contain collection",'detail'=>"Request does'nt contant collection"]);
