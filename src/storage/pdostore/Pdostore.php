@@ -13,9 +13,12 @@ class Pdostore {
     static $total;
 
     public static function connectDb() {
-        $dsn = 'pgsql:host=10.130.5.119;port=5432;dbname=JsonApiTest;';
-        $user = 'flexberry_orm_tester';
-        $password = 'sa3dfE';
+//         $dsn = 'pgsql:host=10.130.5.119;port=5432;dbname=JsonApiTest;';
+//         $user = 'flexberry_orm_tester';
+//        $password = 'sa3dfE';
+        $dsn = 'pgsql:host=127.0.0.1;port=5432;dbname=demo;';
+        $user = 'demo';
+        $password = 'demo';
         try {
             $dbh = new \PDO($dsn, $user, $password);
         } catch (PDOException $e) {
@@ -191,7 +194,8 @@ class Pdostore {
         foreach ($fieldList as $fieldName) {
             $FieldList[]='"' . $fieldName . '"';
         }
-        $fetchCmd='SELECT ' . implode(',',$FieldList) . " FROM \"public\".\"$modelClassName\""; 
+        $tableName=$modelClassName::getTableName();
+        $fetchCmd='SELECT ' . implode(',',$FieldList) . " FROM \"public\".\"$tableName\""; 
         if ($id!==null) {   //Get Object By Id
             $fetchCmd.= " WHERE \"". $PrimaryKeyName . "\" = '" . $id . "'";
         }

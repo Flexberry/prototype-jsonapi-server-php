@@ -24,7 +24,7 @@ class Request {
         return $ret;
     }
 
-    static public function urlParse($request_uri) {
+    static public function urlParse($request_uri,$domain) {
         while (substr($request_uri,0,1)=='/') $request_uri=substr($request_uri,1);
         $parsed=parse_url($request_uri);
 //         echo "<pre>parsed=";print_r($parsed);echo "</pre>";
@@ -38,7 +38,7 @@ class Request {
         if (!$type) {
             Responce::sendErrorReply(['status'=>'400','title'=>"Unknown collection ". $retPath['collection']]);    
         }
-        echo "<pre>type=";print_r($type);echo "</pre>";;
+//         echo "<pre>type=";print_r($type);echo "</pre>";;
         $retPath['type']=$type;
         if (count($steps)>1) {
             $retPath['id']=$steps[1];
@@ -94,7 +94,7 @@ class Request {
         if (key_exists('filter',$Query)) {
             $retQuery['filter']=$Query['filter'];
         }
-        $ret=['path'=>$retPath,'query'=>$retQuery,'location'=>"/$location"];
+        $ret=['path'=>$retPath,'query'=>$retQuery,'location'=>"/$domain/$location"];
         return $ret;       
     }
 

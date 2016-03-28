@@ -79,7 +79,7 @@ class Get extends \request\Request {
             $listObjects=$objects;  //List Objects for schema generations
             $encodedObject=$objects;    // encoded Object
         }
-//         echo "LISTOBJECTS=";print_r($listObjects);
+//         echo "LISTOBJECTS=";print_r($listObjects);exit;
         $schemas=(is_object($listObjects)?FJA::formSchema($listObjects):FJA::formSchemas($listObjects));
 //         echo "schemas=";print_r($schemas);
         if (key_exists('include',$query)) {

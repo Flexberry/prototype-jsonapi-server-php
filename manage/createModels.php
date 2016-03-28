@@ -27,20 +27,6 @@ if (!is_dir($schemasDir)) {
 
 $listDomainTypesFile="$domainDir/ListDomainTypes.php";
 
-// class Берлога extends Model {
-//     public static $PrimaryKeyName='primarykey';
-//     public static $AttrTypes=[
-//         'Наименование'=>'string',
-//         'Комфортность'=>'integer',
-//         'Заброшена'=>'boolean',
-//         ];
-// 
-//     public static $relationshipList=[
-//         'ЛесРасположения'=>'Лес',
-//         'Медведь'=>'Медведь'
-//         ];
-// }
-
 $fd=dir($modelDir);
 $listModels=[];
 while ($entry=$fd->read()) {
@@ -61,7 +47,7 @@ while ($entry=$fd->read()) {
 // 	echo $str;
 	$desc=json_decode($str,true);
 	$phpClassCode="<?php\nuse fja\Model;\nclass $phoModelName extends Model {\n";
-	$phpClassCode.="\tpublic static \$PrimaryKeyName='primaryKey';\n";
+	$phpClassCode.="\tpublic static \$PrimaryKeyName='primarykey';\n";
 	$attrs=[];
 	foreach ($desc['attrs'] as $attr) {
 		$name=$attr['name'];
