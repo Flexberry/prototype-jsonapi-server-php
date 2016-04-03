@@ -6,6 +6,7 @@ class Responce {
     public static function  sendObjects($json,$status,$headers=[]) {
         http_response_code($status);
         $headers[]="Content-type: application/vnd.api+json";
+        $headers[]="Access-Control-Allow-Origin: *";
         foreach ($headers as $header) {
             header($header);
         }
@@ -16,6 +17,7 @@ class Responce {
         $status='204';
         http_response_code($status);
         $headers[]="Content-type: application/vnd.api+json";
+        $headers[]="Access-Control-Allow-Origin: *";
         foreach ($headers as $header) {
             header($header);
         }
@@ -27,6 +29,7 @@ class Responce {
 //         $status='200';
         http_response_code($status);
         $headers[]="Content-type: application/vnd.api+json";
+        $headers[]="Access-Control-Allow-Origin: *";
         foreach ($headers as $header) {
             header($header);
         }
