@@ -1,4 +1,5 @@
 <?php 
+use \fja\FJA;
 use \responce\Responce;
 use \request\get\Get;
 
@@ -34,9 +35,9 @@ class Pdostore {
 
     public static function updateObject($object,$id) {
 //          echo "object=".print_r($object,true);
-        $className=get_class($object);
-        $PrimaryKeyName=$className::$PrimaryKeyName;
-        $updateCmd="UPDATE $className SET ";
+        $tableName=strtolower(\fja\FJA::classNameToCamelName(get_class($object)));
+        $PrimaryKeyName=$tableName::$PrimaryKeyName;
+        $updateCmd="UPDATE $tableName SET ";
         $set=[];
         foreach ($object->attributes as $name=>$value) {
             if ($name==$PrimaryKeyName) continue;
@@ -65,15 +66,16 @@ class Pdostore {
     }
 
     public static function addObjectToDb($object) {
-    //     echo "object=".print_r($object,true);
+        echo "object=".print_r($object,true);
 //         return $object;    
     //     echo "primaryKey=$primaryKey\n";
-        $className=get_class($object);
-        $insertCmd="INSERT INTO public." . $className . ' ';; 
+    	$className=get_class($object);
+        $tableName=strtolower(\fja\FJA::classNameToCamelName($className));
+        $insertCmd="INSERT INTO public." . $tableName . ' ';; 
         $fieldNames=[];
         $fieldValues=[];
         foreach ($object->attributes as $name=>$value) {
-            $fieldNames[]='"'.$name.'"';
+            $fieldNames[]='"'.strtolower($name).'"';
             if ($object->isBoolean($name)) {
                 $value=($value?'true':'false');
             } else {
@@ -92,7 +94,7 @@ class Pdostore {
         }    
         
         $insertCmd.='('. implode(',',$fieldNames) . ') VALUES (' . implode(',',$fieldValues) . ')';
-//         echo "insertCmd=$insertCmd\n";
+//         echo "insertCmd=$insertCmd\n";exit;
 
         $dbh=self::connectDb();
     //     echo "DBH=".print_r($dbh,true);
@@ -122,7 +124,8 @@ class Pdostore {
         }
         $PrimaryKeyName=$modelClassName::$PrimaryKeyName;
         $dbh=self::connectDb();
-        $tableName=$modelClassName::getTableName();
+//         $tableName=\fja\FJA::classNameToCamelName($modelClassName::getTableName());
+        $tableName=strtolower(\fja\FJA::classNameToCamelName($modelClassName));
         $updateCmd="UPDATE $tableName SET $relationship = null WHERE $PrimaryKeyName = '$id'";
 //         echo "updateCmd=$updateCmd\n";
         $reply = $dbh->query($updateCmd);
@@ -146,7 +149,8 @@ class Pdostore {
 //         echo "Delete object  $collection/$id\n";
         $PrimaryKeyName=$modelClassName::$PrimaryKeyName;
         $dbh=self::connectDb();
-        $tableName=$modelClassName::getTableName();
+//         $tableName=\fja\FJA::classNameToCamelName($modelClassName::getTableName());
+        $tableName=strtolower(\fja\FJA::classNameToCamelName($modelClassName));
         $deleteCmd="DELETE FROM $tableName WHERE $PrimaryKeyName = '$id'";
         echo "deleteCmd=$deleteCmd\n";
         $reply = $dbh->query($deleteCmd);
@@ -201,7 +205,9 @@ class Pdostore {
         foreach ($fieldList as $fieldName) {
             $FieldList[]='"' . $fieldName . '"';
         }
-        $tableName=$modelClassName::getTableName();
+//         $tableName=\fja\FJA::classNameToCamelName($modelClassName::getTableName());
+//         $tableName=\fja\FJA::classNameToCamelName($modelClassName);
+        $tableName=strtolower(\fja\FJA::classNameToCamelName($modelClassName));
         $fetchCmd='SELECT ' . implode(',',$FieldList) . " FROM \"public\".\"$tableName\""; 
         if ($id!==null) {   //Get Object By Id
             $fetchCmd.= " WHERE \"". $PrimaryKeyName . "\" = '" . $id . "'";
@@ -231,7 +237,7 @@ class Pdostore {
                 $fetchCmd .= " LIMIT " . self::$page['size'];
             }
         }
-//         echo "fetchtCmd=$fetchCmd<br>\n";
+//         echo "fetchtCmd=$fetchCmd<br>\n";exit;
 //         echo "DBH=".print_r($dbh,true);
         $reply = $dbh->query($fetchCmd);
         $ErrorCode=$dbh->errorCode();

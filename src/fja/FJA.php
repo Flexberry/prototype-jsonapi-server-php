@@ -9,6 +9,9 @@ class FJA {
 
     public static $domainsDir;
     public static $domain;
+    public static $underlineDomain;
+    public static $domainLength;
+    
     private static $defaultDomain='jsonapitest';    //Домен по умолчвнию (в случае осутствия указанного)
     private static $domainToDBName= [
         'jsonapitest'=>'JsonApiTest'
@@ -28,12 +31,26 @@ class FJA {
             $domain=self::$defaultDomain;
         }
         self::$domain=$domain;
+		self::$underlineDomain=str_replace('-','_',$domain);
+		self::$domainLength=strlen($domain);
         self::$domainIncludeDir=self::$domainsDir . "/" . self::$domain;
         self::$schemasIncludeDir=self::$domainIncludeDir."/Schemas";
         self::$modelsIncludeDir=self::$domainIncludeDir."/Models";
         self::$FJAIncludeDir= __DIR__."/..";
 //        echo "FJAIncludeDir=".self::$FJAIncludeDir."";
     }
+    
+    public static function classNameToCamelName($className) {
+//     	echo "classNameToCamelName($className)<br>";exit;
+    	if (substr($className,0,self::$domainLength)==self::$underlineDomain) {
+    		$className=substr($className,self::$domainLength);
+    	}
+    	$ret='';
+    	foreach (explode('_',$className) as $word) {
+    		$ret.=UcFirst($word);
+    	}
+    	return $ret;
+	}    
 
     public static function autoload($className) {
 //         echo "AUTOLOAD $className:\n";

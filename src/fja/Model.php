@@ -24,6 +24,7 @@ class Model {
     }
     
     public function isBoolean($attrName) {
+    	$attrName=strtolower($attrName);
         $attrType=@$this->attrTypes[$attrName];
         $ret=($attrType=='boolean');
         return $ret;        
@@ -157,13 +158,13 @@ class Model {
         return $ret;
     }  
 
-    /*
-     * Table name for Model
-     */
-    public static function getTableName() {
-    	$className=static::class;
-    	$parts=explode('_',$className);
-    	$ret=array_pop($parts);
-    	return $ret;
-    }
+//     /*
+//      * Table name for Model
+//      */
+//     public static function getTableName() {
+//     	$className=static::class;
+//     	$parts=explode('_',$className);
+//     	$ret=array_pop($parts);
+//     	return $ret;
+//     }
 }
