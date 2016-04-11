@@ -23,6 +23,16 @@ class ListTypes {
         return false;
     }
     
-    
+    public static function payloadKeyFromModelName($singleName) {
+    	$ret=(key_exists($singleName,static::$listPlurals)?static::$listPlurals[$singleName]:'');
+    	return $ret;
+	}
+
+    public static function modelNameFromPayloadKey($pluralName) {
+    	$list=array_flip(static::$listPlurals);
+	   	$ret=(key_exists($pluralName,$list)?$list[$pluralName]:'');
+    	return $ret;
+	}
+	
 }
 

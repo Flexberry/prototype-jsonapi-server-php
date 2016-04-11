@@ -20,6 +20,7 @@ class Post extends \request\Request {
 //         echo "Create object $request_uri<br>\n";
         $json=false;
         $body=self::getBody();
+        error_log("BODY:". print_r($body,true)."\n");
         $object=self::dataToObject($body);
         $classType=get_class($object);
         $primaryKeyName=$object->primaryKeyName;

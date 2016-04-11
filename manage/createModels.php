@@ -29,12 +29,14 @@ $listDomainTypesFile="$domainDir/ListDomainTypes.php";
 
 $fd=dir($modelDir);
 $listModels=[];
+$listPlurals=[];
 while ($entry=$fd->read()) {
 	if (substr($entry,-5)!='.json') continue;
 	$file="$modelDir/$entry";
 	$modelName=substr($entry,0,-5);
 	$phoModelName=str_replace('-','_',$modelName);
 	$listModels[]="'$phoModelName'";
+	$listPlurals[]="'$phoModelName'=>'${phoModelName}s'";
 	$classFile="$modelsDir/${phoModelName}.php";
 	$schemasFile="$schemasDir/SchemaOf${phoModelName}.php";
 	$fp=fopen($file,'r');
@@ -93,9 +95,14 @@ while ($entry=$fd->read()) {
 	fclose($fpSchemas);	
 }
 
-$phpListDomainTypes="<?php\nuse \\fja\\ListTypes;\nclass ListDomainTypes  extends ListTypes {\n\t public static \$listTypes= [\n\t" .
+$phpListDomainTypes="<?php\nuse \\fja\\ListTypes;\nclass ListDomainTypes  extends ListTypes {\n";
+$phpListDomainTypes.="\tpublic static \$listTypes= [\n\t\t" .
 	implode(",\n\t\t",$listModels) . 
-	"\n\t];\n}\n";
+	"\n\t];\n";
+$phpListDomainTypes.="\tpublic static \$listPlurals= [\n\t\t" .
+	implode(",\n\t\t",$listPlurals) . 
+	"\n\t];\n";
+$phpListDomainTypes.="}\n";
 $fpListDomainTypes=fopen($listDomainTypesFile,'w');
 fwrite($fpListDomainTypes,$phpListDomainTypes);
 fclose($fpListDomainTypes);	

@@ -10,6 +10,7 @@ use \responce\Responce;
 require(__DIR__ . '/../../vendor/autoload.php');
 require(__DIR__ . '/../fja/FJA.php');  //Базовый класс Flexberry JSON API
 
+error_log("Operation: ".$_SERVER["REQUEST_METHOD"]. " " . $_SERVER["REQUEST_URI"]."\n");
 FJA::setDomainsDir($_SERVER["DOCUMENT_ROOT"]. "/../../domains");   //Set home directory for all modelClass and Schemas
 $path=explode('/',trim($_SERVER["REQUEST_URI"],'/'));
 $domain=array_shift($path);   //Domain as first subdomain in path, shift path left 
@@ -76,6 +77,23 @@ switch ($_SERVER["REQUEST_METHOD"]) {
         $json=Get::getObject($parsedRequest,$baseURL);        
         Responce::sendObjects($json,'200');
         break;;
+        
+    case 'OPTIONS':    //Запрос наследие Odata
+//         echo "Fetch object $request_uri<br>\n";
+//         $body=Request::getBody();
+//         error_log("BODY: $body\n");
+        http_response_code('200');
+		header_remove("X-Powered-By");
+		header_remove("Content-Type");
+		header_remove("Content-Length");
+		header("Allow: GET, POST, PATCH, DELETE, OPTIONS");
+		header("Access-Control-Allow-Methods: GET, POST, PATCH, DELETE, OPTIONS");
+		header("Access-Control-Allow-Origin: *");
+		header("Access-Control-Max-Age: 1000");
+		header("Access-Control-Allow-Headers: origin, x-csrftoken, content-type, accept");
+// 		header("");
+        break;;
+        
 }
 
 
